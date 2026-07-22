@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430, initial-scale=1">
+<title>M4Event — Event Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-primary: #E61919;
+  --color-on-primary: #0B0B0B;
+  --color-accent: #ECECEA;
+  --surface-page: #0B0B0B;
+  --surface-card: #131312;
+  --surface-elevated: #1A1A19;
+  --surface-sunken: #050505;
+  --text-primary: #ECECEA;
+  --text-secondary: #9F9F9C;
+  --text-tertiary: #6A6A67;
+  --text-disabled: #3A3A36;
+  --border-default: #2A2A27;
+  --border-strong: #3A3A36;
+  --border-focus: #E61919;
+  --action-primary: #E61919;
+  --action-primary-hover: #FF2A2A;
+  --action-secondary: #1A1A19;
+  --action-secondary-hover: #2A2A27;
+  --state-success: #4AF626;
+  --state-success-bg: rgba(74,246,38,0.12);
+  --state-warning: #E0A819;
+  --state-warning-bg: rgba(224,168,25,0.12);
+  --state-danger: #E61919;
+  --state-danger-bg: rgba(230,25,25,0.12);
+  --state-info: #4AF626;
+  --state-info-bg: rgba(74,246,38,0.12);
+  --font-display: 'Archivo Black', 'Inter', sans-serif;
+  --font-body: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-full: 0;
+    --status-bar-height: 54px;
+    --home-indicator-height: 34px;
+    --container: 1120px;
+    --gutter: 32px;
+  }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--surface-page);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  min-height: 100vh;
+
+  overflow-x: hidden;}
+
+.screen-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface-page);
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 24px;
+}
+.screen-nav button {
+  background: var(--surface-card); color: var(--text-tertiary);
+  border: 1px solid var(--border-default); border-radius: 0;
+  padding: 6px 10px; font-size: 11px; font-family: var(--font-mono);
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.screen-nav button:hover,
+.screen-nav button.active {
+  background: var(--color-primary); color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+.screen-label-old {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.phone-frame {
+  width: 390px;
+  min-height: 844px;
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 48px;
+  box-shadow: 0 0 0 1px var(--border-default), 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.status-bar {
+  height: var(--status-bar-height);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 28px 8px;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.status-bar .time { font-size: 16px; font-weight: 700; }
+.status-bar .icons { display: flex; gap: 6px; align-items: center; }
+.status-bar .icons svg { width: 18px; height: 18px; fill: var(--text-primary); }
+
+.home-indicator {
+  height: var(--home-indicator-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-indicator::after {
+  content: '';
+  width: 134px;
+  height: 5px;
+  background: var(--text-tertiary);
+  border-radius: var(--radius-full);
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.screen-content {
+  padding: 0 24px 24px;
+  min-height: 680px;
+}
+
+/* Typography */
+h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.caption {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+.body { font-size: 14px; line-height: 1.6; color: var(--text-secondary); }
+.body-sm { font-size: 13px; line-height: 1.5; color: var(--text-secondary); }
+
+/* Components */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--action-primary);
+  color: var(--color-on-primary);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+}
+.btn-sm {
+  padding: 6px 16px;
+  font-size: 11px;
+}
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+}
+.btn-icon svg { width: 20px; height: 20px; fill: var(--text-primary); }
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  padding: 20px;
+}
+.card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  padding: 20px;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+.avatar-lg { width: 56px; height: 56px; font-size: 18px; }
+.avatar-xl { width: 72px; height: 72px; font-size: 22px; }
+.avatar-sm { width: 36px; height: 36px; font-size: 12px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.badge-primary { background: var(--color-primary); color: var(--color-on-primary); }
+.badge-success { background: var(--state-success-bg); color: var(--state-success); }
+.badge-warning { background: var(--state-warning-bg); color: var(--state-warning); }
+.badge-danger { background: var(--state-danger-bg); color: var(--state-danger); }
+.badge-info { background: var(--state-info-bg); color: var(--state-info); }
+.badge-outline {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: 20px 0;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Icon backgrounds */
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon-circle svg { width: 22px; height: 22px; fill: var(--text-primary); }
+.icon-circle-sm {
+  width: 36px;
+  height: 36px;
+}
+.icon-circle-sm svg { width: 16px; height: 16px; }
+
+.icon-circle-primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Event image placeholder */
+.event-img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.event-img svg { width: 48px; height: 48px; fill: var(--text-disabled); }
+
+/* Grid */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; }
+
+/* Flex helpers */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-4 { gap: 4px; }
+.gap-6 { gap: 6px; }
+.gap-8 { gap: 8px; }
+.gap-10 { gap: 10px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-20 { gap: 20px; }
+.gap-24 { gap: 24px; }
+.gap-32 { gap: 32px; }
+.flex-1 { flex: 1; }
+.w-full { width: 100%; }
+
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-24 { margin-bottom: 24px; }
+.mb-32 { margin-bottom: 32px; }
+
+.text-center { text-align: center; }
+
+/* Bottom nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 84px;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  padding-top: 12px;
+  padding-bottom: var(--home-indicator-height);
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.nav-item.active { color: var(--color-primary); }
+.nav-item svg { width: 22px; height: 22px; fill: currentColor; }
+
+/* Progress bar */
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--border-default);
+}
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-primary);
+}
+
+/* Divider with text */
+.divider-text {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.divider-text::before,
+.divider-text::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-default);
+}
+
+/* ===== BRUTALIST TASTE — full override ===== */
+
+/* CRT scanlines overlay */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.18) 2px 3px);
+  mix-blend-mode: multiply; opacity: 0.55;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
+}
+
+/* Base reset */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--surface-page) !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum";
+  line-height: 1.55;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
+}
+
+/* Cards — no radius, no shadow, flat */
+.card, .event-card, .stat-box, .meta-item {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Buttons — flat, mono, uppercase */
+.btn-primary, button.btn-primary, a.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--action-primary) !important;
+  color: #0B0B0B !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+}
+.btn-primary:hover {
+  background: var(--action-primary-hover) !important;
+}
+
+.btn-secondary, button.btn-secondary, a.btn-secondary, .btn-outline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 9px 19px !important;
+  cursor: pointer !important;
+}
+.btn-secondary:hover {
+  border-color: var(--text-primary) !important;
+}
+
+/* Badges and tags — no radius */
+.badge, .tag {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 4px 10px !important;
+}
+.badge-primary {
+  background: var(--color-primary) !important;
+  color: #0B0B0B !important;
+}
+
+/* Inputs — flat, mono */
+input, textarea, select, .input-field, .search-bar input {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  border: 1px solid var(--border-default) !important;
+  background: #050505 !important;
+  color: var(--text-primary) !important;
+  padding: 10px 14px !important;
+}
+input:focus, textarea:focus, .input-field:focus {
+  border-color: var(--color-primary) !important;
+  outline: none !important;
+}
+
+/* Avatars — no radius */
+.avatar {
+  border-radius: 0 !important;
+}
+
+/* Dividers */
+.divider {
+  border-color: var(--border-default) !important;
+}
+
+/* Screen containers */
+.phone, .phone-frame, .iphone-frame {
+  border-radius: 0 !important;
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-page) !important;
+  box-shadow: none !important;
+
+  width: 390px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Status bar — match brutalist topbar */
+.status-bar {
+  border-bottom: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-secondary) !important;
+}
+.status-bar .time {
+  color: var(--text-primary) !important;
+}
+
+/* Home indicator */
+.home-indicator .bar, .home-indicator > div {
+  background: var(--border-strong) !important;
+  border-radius: 0 !important;
+}
+
+/* Navigation items */
+.nav-item {
+  border-radius: 0 !important;
+}
+.nav-item.active, .nav-item:hover {
+  background: var(--surface-elevated) !important;
+}
+
+/* Toggle switches */
+.toggle {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.toggle.active {
+  background: var(--color-primary) !important;
+}
+
+/* Steps indicator */
+.step-dot {
+  border-radius: 0 !important;
+}
+.step-dot.active {
+  background: var(--color-primary) !important;
+}
+.step-line {
+  background: var(--border-default) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.progress-fill {
+  border-radius: 0 !important;
+  background: var(--color-primary) !important;
+}
+
+/* Tables and grids */
+.grid-2, .grid-3, .grid-4 {
+  gap: 1px !important;
+}
+.phone-frame .grid-2 > *, .phone-frame .grid-3 > *, .phone-frame .grid-4 > * {
+  background: var(--surface-card) !important;
+  border: none !important;
+}
+
+/* Icons in circles */
+.icon-circle, .icon-circle-sm {
+  border-radius: 0 !important;
+  background: var(--surface-elevated) !important;
+}
+
+/* Typography overrides */
+.caption {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+.body-sm, .body-text, p {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: var(--text-secondary) !important;
+}
+.section-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  color: var(--color-primary) !important;
+}
+
+/* Empty states */
+.empty-state {
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+}
+.empty-icon {
+  border-radius: 0 !important;
+}
+.empty-title {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text-primary) !important;
+}
+
+/* Filter options */
+.filter-option {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+}
+.filter-option:hover {
+  border-color: var(--color-primary) !important;
+}
+
+/* Event cards */
+.card-image {
+  border-radius: 0 !important;
+}
+
+/* Notification badges */
+.notif-dot, .notif-count {
+  border-radius: 0 !important;
+}
+
+/* Checkbox / radio style */
+input[type="radio"], input[type="checkbox"] {
+  border-radius: 0 !important;
+}
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  background: var(--color-primary) !important;
+}
+
+/* Bottom nav */
+.bottom-nav-item {
+  border-radius: 0 !important;
+}
+.bottom-nav-item.active {
+  border-top-color: var(--color-primary) !important;
+}
+
+/* All border-radius zero-out */
+[style*="border-radius"] {
+  border-radius: 0 !important;
+}
+
+/* Chat/message bubbles */
+.message-bubble {
+  border-radius: 0 !important;
+}
+
+/* Stats */
+.stat-value {
+  font-family: var(--font-display) !important;
+  font-size: 32px !important;
+  letter-spacing: -0.03em !important;
+  color: var(--text-primary) !important;
+}
+.stat-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-page); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+</style>
+</head>
+<body>
+<div class="screen-nav" id="screenNav"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 01 — EVENT DETAILS                    -->
+<!-- ============================================ -->
+<div class="screen" id="screen-01">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <!-- Event Cover -->
+    <div class="event-img" style="aspect-ratio:16/9; border-radius: 0;">
+      <svg viewBox="0 0 24 24" width="48" height="48" fill="var(--text-disabled)"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+    </div>
+
+    <div style="padding: 24px;">
+      <!-- Back + Share -->
+      <div class="flex items-center justify-between mb-24">
+        <div class="btn-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </div>
+        <div class="flex gap-8">
+          <div class="btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          </div>
+          <div class="btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badge -->
+      <div class="mb-12">
+        <span class="badge badge-primary">Public Event</span>
+      </div>
+
+      <!-- Title -->
+      <h1 class="mb-8">Tech Summit Antananarivo 2026</h1>
+
+      <!-- Organizer -->
+      <div class="flex items-center gap-12 mt-12 mb-24">
+        <div class="avatar-sm" style="width:32px;height:32px;border-radius:50%;background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:11px;font-weight:700;color:var(--color-primary);">M4</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-primary);">M4Vision</div>
+          <div class="caption">Organizer</div>
+        </div>
+      </div>
+
+      <!-- Info Cards -->
+      <div class="flex flex-col gap-12 mb-24">
+        <div class="card flex items-center gap-16">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="caption mb-4">Date</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-primary);">Saturday, March 15, 2026</div>
+          </div>
+        </div>
+
+        <div class="card flex items-center gap-16">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="caption mb-4">Time</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-primary);">09:00 — 17:00 (GMT+3)</div>
+          </div>
+        </div>
+
+        <div class="card flex items-center gap-16">
+          <div class="icon-circle">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div class="caption mb-4">Location</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text-primary);">Hotel Radisson Blu, Antananarivo</div>
+            <div class="body-sm mt-4" style="color:var(--text-tertiary);">67 Rue Ramanantoanina, Analakely</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="card mb-24" style="background:var(--surface-elevated);">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="caption mb-4">Ticket Price</div>
+            <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--color-primary);">25,000 AR</div>
+          </div>
+          <div class="badge badge-success">Available</div>
+        </div>
+        <div class="mt-12 body-sm" style="color:var(--text-tertiary);">142 tickets remaining out of 200</div>
+        <div class="progress-bar mt-8">
+          <div class="progress-bar-fill" style="width:29%;"></div>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="mb-24">
+        <h3 class="mb-12">About This Event</h3>
+        <p class="body">Join Madagascar's premier technology conference bringing together developers, designers, and startup founders. Three days of talks, workshops, and networking with industry leaders from across Africa and beyond.</p>
+        <p class="body mt-12">Topics include mobile development, AI/ML, cloud infrastructure, and building scalable products for African markets.</p>
+      </div>
+
+      <!-- Participants Preview -->
+      <div class="mb-24">
+        <div class="flex items-center justify-between mb-12">
+          <h3>Participants</h3>
+          <div class="caption" style="color:var(--color-primary);">View All</div>
+        </div>
+        <div class="flex items-center">
+          <div class="avatar" style="margin-left:-8px;border:2px solid var(--surface-page);">JD</div>
+          <div class="avatar" style="margin-left:-8px;border:2px solid var(--surface-page);">AK</div>
+          <div class="avatar" style="margin-left:-8px;border:2px solid var(--surface-page);">MR</div>
+          <div class="avatar" style="margin-left:-8px;border:2px solid var(--surface-page);">SL</div>
+          <div class="avatar" style="margin-left:-8px;border:2px solid var(--surface-page);background:var(--color-primary);color:var(--color-on-primary);font-size:11px;">+89</div>
+        </div>
+      </div>
+
+      <!-- Partners Preview -->
+      <div class="mb-32">
+        <div class="flex items-center justify-between mb-12">
+          <h3>Partners</h3>
+          <div class="caption" style="color:var(--color-primary);">View All</div>
+        </div>
+        <div class="flex gap-12">
+          <div class="card" style="flex:1;padding:20px;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-secondary);">JetBrains</div>
+          </div>
+          <div class="card" style="flex:1;padding:20px;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-secondary);">Vercel</div>
+          </div>
+          <div class="card" style="flex:1;padding:20px;text-align:center;">
+            <div style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-secondary);">Supabase</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="flex gap-12">
+        <button class="btn-primary flex-1">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+          Buy Ticket
+        </button>
+        <button class="btn-secondary" style="width:auto;">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          Invite
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 02 — EVENT GALLERY                    -->
+<!-- ============================================ -->
+<div class="screen" id="screen-02">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <!-- Header -->
+    <div class="flex items-center justify-between" style="margin-bottom:28px;">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Gallery</h2>
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+    </div>
+
+    <!-- Event Info -->
+    <div class="flex items-center justify-between" style="margin-bottom:28px;">
+      <div>
+        <h3>Tech Summit 2026</h3>
+        <div class="caption" style="margin-top:6px;">48 photos</div>
+      </div>
+      <button class="btn-primary btn-sm" style="width:auto;">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg>
+        Upload
+      </button>
+    </div>
+
+    <!-- Photo Grid — 2 columns, generous gaps -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;">
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="grid-column:span 2;height:140px;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+      <div style="aspect-ratio:1;background:var(--surface-elevated);border:1px solid var(--border-default);"></div>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider" style="margin-bottom:28px;"></div>
+
+    <!-- Live Feed -->
+    <h3 style="margin-bottom:24px;">Live Feed</h3>
+    <div class="flex flex-col" style="gap:20px;">
+      <!-- Post 1 -->
+      <div class="card" style="padding:20px;">
+        <div class="flex items-center" style="gap:14px;margin-bottom:16px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--color-primary);flex-shrink:0;">NR</div>
+          <div class="flex-1">
+            <div style="font-size:14px;font-weight:600;">Nina R.</div>
+            <div class="caption" style="margin-top:2px;">2m ago</div>
+          </div>
+        </div>
+        <div style="width:100%;aspect-ratio:16/10;background:var(--surface-elevated);border:1px solid var(--border-default);margin-bottom:14px;"></div>
+        <div class="flex items-center" style="gap:20px;">
+          <div class="flex items-center" style="gap:6px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-tertiary)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span class="caption">24</span>
+          </div>
+          <div class="flex items-center" style="gap:6px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-tertiary)"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+            <span class="caption">8</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Post 2 -->
+      <div class="card" style="padding:20px;">
+        <div class="flex items-center" style="gap:14px;margin-bottom:14px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--color-primary);flex-shrink:0;">TM</div>
+          <div class="flex-1">
+            <div style="font-size:14px;font-weight:600;">Tiana M.</div>
+            <div class="caption" style="margin-top:2px;">5m ago</div>
+          </div>
+        </div>
+        <p class="body-sm" style="margin-bottom:14px;">Amazing keynote speech! The future of tech in Madagascar looks bright.</p>
+        <div class="flex items-center" style="gap:20px;">
+          <div class="flex items-center" style="gap:6px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-tertiary)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span class="caption">41</span>
+          </div>
+          <div class="flex items-center" style="gap:6px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-tertiary)"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg>
+            <span class="caption">12</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 03 — PARTICIPANTS LIST                -->
+<!-- ============================================ -->
+<div class="screen" id="screen-03">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="flex items-center justify-between mb-24">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Participants</h2>
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </div>
+    </div>
+
+    <div class="caption mb-16">93 Participants</div>
+
+    <!-- Search -->
+    <div class="card mb-20 flex items-center gap-12" style="padding:12px 16px;">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-tertiary)"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <span style="font-size:14px;color:var(--text-tertiary);">Search participants...</span>
+    </div>
+
+    <!-- Participant List -->
+    <div class="flex flex-col gap-2">
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">JD</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Jean Daniel</div>
+          <div class="caption mt-4">Full-Stack Developer</div>
+        </div>
+        <div class="badge badge-outline">Organizer</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">AK</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Aina Kely</div>
+          <div class="caption mt-4">UX Designer</div>
+        </div>
+        <div class="badge badge-primary">Speaker</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">MR</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Miora R.</div>
+          <div class="caption mt-4">Product Manager</div>
+        </div>
+        <div class="badge badge-outline">Attendee</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">SL</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Soa Lala</div>
+          <div class="caption mt-4">Mobile Developer</div>
+        </div>
+        <div class="badge badge-outline">Attendee</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">HR</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Hery Ranaivo</div>
+          <div class="caption mt-4">DevOps Engineer</div>
+        </div>
+        <div class="badge badge-outline">Attendee</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">FN</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Fara Nomena</div>
+          <div class="caption mt-4">Data Scientist</div>
+        </div>
+        <div class="badge badge-info">VIP</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">TR</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Tiana Razaka</div>
+          <div class="caption mt-4">Frontend Developer</div>
+        </div>
+        <div class="badge badge-outline">Attendee</div>
+      </div>
+
+      <div class="card flex items-center gap-16" style="padding:20px;">
+        <div class="avatar">VA</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Vato Andria</div>
+          <div class="caption mt-4">Backend Developer</div>
+        </div>
+        <div class="badge badge-outline">Attendee</div>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 04 — ORGANIZERS                       -->
+<!-- ============================================ -->
+<div class="screen" id="screen-04">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <!-- Header -->
+    <div class="flex items-center justify-between" style="margin-bottom:32px;">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Organizers</h2>
+      <div style="width:44px;"></div>
+    </div>
+
+    <!-- Primary Organizer Card -->
+    <div class="card" style="background:var(--surface-elevated);margin-bottom:32px;padding:24px;">
+      <div class="flex items-center" style="gap:18px;margin-bottom:20px;">
+        <div class="avatar-xl" style="background:var(--color-primary);color:var(--color-on-primary);">M4</div>
+        <div class="flex-1">
+          <div class="flex items-center" style="gap:10px;margin-bottom:6px;">
+            <h3>M4Vision</h3>
+            <div class="badge badge-primary" style="font-size:8px;">Primary</div>
+          </div>
+          <div class="body-sm">Software development studio building digital products for startups and businesses across Madagascar.</div>
+        </div>
+      </div>
+      <div class="divider" style="margin:20px 0;"></div>
+      <div class="flex gap-20">
+        <div class="flex-1 text-center">
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text-primary);">12</div>
+          <div class="caption" style="margin-top:6px;">Events</div>
+        </div>
+        <div class="flex-1 text-center">
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text-primary);">2.4k</div>
+          <div class="caption" style="margin-top:6px;">Followers</div>
+        </div>
+        <div class="flex-1 text-center">
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--color-primary);">98%</div>
+          <div class="caption" style="margin-top:6px;">Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Co-Organizers Section -->
+    <div class="flex items-center" style="gap:14px;margin-bottom:20px;">
+      <div class="label">Co-Organizers</div>
+      <div style="flex:1;height:1px;background:var(--border-default);"></div>
+    </div>
+
+    <div class="card" style="padding:18px;margin-bottom:16px;">
+      <div class="flex items-center" style="gap:16px;">
+        <div class="avatar-lg" style="background:var(--surface-elevated);color:var(--text-primary);">42</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">Ecole 42 Antananarivo</div>
+          <div class="caption" style="margin-top:4px;">Coding school & tech community</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-tertiary)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </div>
+    </div>
+
+    <div class="card" style="padding:18px;margin-bottom:16px;">
+      <div class="flex items-center" style="gap:16px;">
+        <div class="avatar-lg" style="background:var(--surface-elevated);color:var(--text-primary);">TG</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">TechGasy Association</div>
+          <div class="caption" style="margin-top:4px;">Madagascar tech community</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-tertiary)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </div>
+    </div>
+
+    <div class="card" style="padding:18px;margin-bottom:32px;">
+      <div class="flex items-center" style="gap:16px;">
+        <div class="avatar-lg" style="background:var(--surface-elevated);color:var(--text-primary);">IM</div>
+        <div class="flex-1">
+          <div style="font-size:15px;font-weight:600;">InnoHub Madagascar</div>
+          <div class="caption" style="margin-top:4px;">Innovation incubator</div>
+        </div>
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-tertiary)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="flex items-center" style="gap:14px;margin-bottom:20px;">
+      <div class="label">Contact</div>
+      <div style="flex:1;height:1px;background:var(--border-default);"></div>
+    </div>
+    <div class="card" style="padding:18px;">
+      <div class="flex items-center" style="gap:14px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-tertiary)"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span style="font-size:14px;color:var(--text-secondary);">events@m4vision.com</span>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 05 — PARTNERS                         -->
+<!-- ============================================ -->
+<div class="screen" id="screen-05">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="flex items-center justify-between mb-24">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Partners</h2>
+      <div style="width:44px;"></div>
+    </div>
+
+    <div class="caption mb-20">3 Partners</div>
+
+    <!-- Gold Partners -->
+    <div class="flex items-center gap-12 mb-12">
+      <div class="label">Gold</div>
+      <div style="flex:1;height:1px;background:var(--border-default);"></div>
+    </div>
+
+    <div class="card mb-16">
+      <div class="flex items-center gap-16 mb-16">
+        <div style="width:56px;height:56px;background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text-primary);">JB</span>
+        </div>
+        <div class="flex-1">
+          <h3>JetBrains</h3>
+          <div class="caption mt-4">Developer tools & IDEs</div>
+        </div>
+        <div class="badge badge-warning">Gold</div>
+      </div>
+      <p class="body-sm">Provider of professional development tools. Supporting the Malagasy developer community with free licenses for attendees.</p>
+      <div class="mt-12">
+        <span class="tag">IDE Licenses</span>
+        <span class="tag" style="margin-left:4px;">Workshop</span>
+      </div>
+    </div>
+
+    <!-- Silver Partners -->
+    <div class="flex items-center gap-12 mb-12">
+      <div class="label">Silver</div>
+      <div style="flex:1;height:1px;background:var(--border-default);"></div>
+    </div>
+
+    <div class="card mb-12">
+      <div class="flex items-center gap-16 mb-12">
+        <div style="width:56px;height:56px;background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text-primary);">VC</span>
+        </div>
+        <div class="flex-1">
+          <h3>Vercel</h3>
+          <div class="caption mt-4">Frontend cloud platform</div>
+        </div>
+        <div class="badge badge-outline">Silver</div>
+      </div>
+      <p class="body-sm">Deployment and hosting platform for modern web applications.</p>
+    </div>
+
+    <div class="card mb-16">
+      <div class="flex items-center gap-16 mb-12">
+        <div style="width:56px;height:56px;background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:var(--font-display);font-size:16px;font-weight:800;color:var(--text-primary);">SB</span>
+        </div>
+        <div class="flex-1">
+          <h3>Supabase</h3>
+          <div class="caption mt-4">Open source Firebase alternative</div>
+        </div>
+        <div class="badge badge-outline">Silver</div>
+      </div>
+      <p class="body-sm">Backend-as-a-service with database, auth, and real-time subscriptions.</p>
+    </div>
+
+    <!-- Become a Partner -->
+    <div class="mt-24">
+      <button class="btn-secondary w-full">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        Become a Partner
+      </button>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 06 — BUY TICKET                       -->
+<!-- ============================================ -->
+<div class="screen" id="screen-06">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="flex items-center justify-between mb-24">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Select Ticket</h2>
+      <div style="width:44px;"></div>
+    </div>
+
+    <!-- Event Summary -->
+    <div class="card mb-20" style="padding:20px;">
+      <div class="flex items-center gap-12">
+        <div style="width:56px;height:56px;background:var(--surface-elevated);border:1px solid var(--border-default);flex-shrink:0;"></div>
+        <div class="flex-1">
+          <h3 style="font-size:14px;">Tech Summit Antananarivo 2026</h3>
+          <div class="caption mt-4">Mar 15, 2026 — Hotel Radisson Blu</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticket Tiers -->
+    <div class="flex flex-col gap-12 mb-24">
+      <!-- Standard -->
+      <div class="card" style="border:2px solid var(--color-primary);background:var(--surface-elevated);">
+        <div class="flex items-center justify-between mb-12">
+          <div>
+            <div class="flex items-center gap-8">
+              <h3>Standard</h3>
+              <div class="badge badge-primary">Popular</div>
+            </div>
+            <div class="body-sm mt-4">Full day access</div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--color-primary);">25,000</div>
+        </div>
+        <div class="flex flex-col gap-8">
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">All keynote sessions</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">Lunch & refreshments</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">Networking sessions</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-disabled)"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            <span class="body-sm" style="color:var(--text-disabled);">Workshop access</span>
+          </div>
+        </div>
+        <div class="mt-16">
+          <button class="btn-primary btn-sm">Select Standard</button>
+        </div>
+      </div>
+
+      <!-- VIP -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-12">
+          <div>
+            <h3>VIP</h3>
+            <div class="body-sm mt-4">Premium experience</div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--text-primary);">50,000</div>
+        </div>
+        <div class="flex flex-col gap-8">
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">Everything in Standard</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">All workshops</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">Speaker dinner</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">Priority seating</span>
+          </div>
+        </div>
+        <div class="mt-16">
+          <button class="btn-secondary btn-sm">Select VIP</button>
+        </div>
+      </div>
+
+      <!-- Student -->
+      <div class="card">
+        <div class="flex items-center justify-between mb-12">
+          <div>
+            <h3>Student</h3>
+            <div class="body-sm mt-4">Valid student ID required</div>
+          </div>
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--text-primary);">10,000</div>
+        </div>
+        <div class="flex flex-col gap-8">
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">All keynote sessions</span>
+          </div>
+          <div class="flex items-center gap-8">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            <span class="body-sm">Lunch included</span>
+          </div>
+        </div>
+        <div class="mt-16">
+          <button class="btn-secondary btn-sm">Select Student</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="caption text-center">All prices in Malagasy Ariary (AR)</div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 07 — CHECKOUT                         -->
+<!-- ============================================ -->
+<div class="screen" id="screen-07">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="flex items-center justify-between mb-24">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Checkout</h2>
+      <div style="width:44px;"></div>
+    </div>
+
+    <!-- Progress -->
+    <div class="flex gap-4 mb-24">
+      <div style="flex:1;height:3px;background:var(--color-primary);"></div>
+      <div style="flex:1;height:3px;background:var(--color-primary);"></div>
+      <div style="flex:1;height:3px;background:var(--border-default);"></div>
+      <div style="flex:1;height:3px;background:var(--border-default);"></div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="card mb-20">
+      <div class="label mb-12">Order Summary</div>
+      <div class="flex items-center justify-between mb-8">
+        <span class="body-sm">Standard Ticket x 1</span>
+        <span style="font-family:var(--font-mono);font-size:14px;font-weight:600;">25,000 AR</span>
+      </div>
+      <div class="flex items-center justify-between mb-8">
+        <span class="body-sm">Service Fee</span>
+        <span style="font-family:var(--font-mono);font-size:14px;font-weight:600;">1,500 AR</span>
+      </div>
+      <div class="divider" style="margin:12px 0;"></div>
+      <div class="flex items-center justify-between">
+        <span style="font-size:15px;font-weight:700;">Total</span>
+        <span style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--color-primary);">26,500 AR</span>
+      </div>
+    </div>
+
+    <!-- Payment Method -->
+    <div class="mb-20">
+      <div class="label mb-12">Payment Method</div>
+      <div class="flex flex-col gap-8">
+        <div class="card flex items-center gap-16" style="padding:16px;border:2px solid var(--color-primary);">
+          <div class="icon-circle-sm" style="width:40px;height:40px;background:var(--color-primary);border-color:var(--color-primary);">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--color-on-primary)"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div style="font-size:14px;font-weight:600;">Mobile Money</div>
+            <div class="caption mt-4">Orange Money / MVola / Airtel</div>
+          </div>
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--color-primary);display:flex;align-items:center;justify-content:center;">
+            <div style="width:10px;height:10px;border-radius:50%;background:var(--color-primary);"></div>
+          </div>
+        </div>
+
+        <div class="card flex items-center gap-16" style="padding:20px;">
+          <div class="icon-circle-sm" style="width:40px;height:40px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-primary)"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div style="font-size:14px;font-weight:600;">Credit / Debit Card</div>
+            <div class="caption mt-4">Visa, Mastercard</div>
+          </div>
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);"></div>
+        </div>
+
+        <div class="card flex items-center gap-16" style="padding:20px;">
+          <div class="icon-circle-sm" style="width:40px;height:40px;">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="var(--text-primary)"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+          </div>
+          <div class="flex-1">
+            <div style="font-size:14px;font-weight:600;">Bank Transfer</div>
+            <div class="caption mt-4">Direct bank payment</div>
+          </div>
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Promo Code -->
+    <div class="mb-24">
+      <div class="label mb-12">Promo Code</div>
+      <div class="flex gap-8">
+        <div class="card flex-1 flex items-center gap-8" style="padding:12px 16px;">
+          <span style="font-size:14px;color:var(--text-tertiary);">Enter code</span>
+        </div>
+        <button class="btn-primary btn-sm" style="width:auto;">Apply</button>
+      </div>
+    </div>
+
+    <!-- Pay Button -->
+    <button class="btn-primary mb-12">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+      Pay 26,500 AR
+    </button>
+    <div class="caption text-center">Secure payment powered by M4Event</div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 08 — PAYMENT CONFIRMATION             -->
+<!-- ============================================ -->
+<div class="screen" id="screen-08">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content flex flex-col items-center" style="justify-content:center;min-height:700px;">
+    <!-- Success Icon -->
+    <div style="width:80px;height:80px;border-radius:50%;background:var(--state-success-bg);border:2px solid var(--state-success);display:flex;align-items:center;justify-content:center;margin-bottom:24px;">
+      <svg viewBox="0 0 24 24" width="40" height="40" fill="var(--state-success)"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    </div>
+
+    <h1 class="text-center mb-8">Payment Successful</h1>
+    <p class="body text-center mb-32" style="max-width:280px;">Your ticket has been confirmed and added to your collection.</p>
+
+    <!-- Ticket Summary Card -->
+    <div class="card w-full mb-24" style="background:var(--surface-elevated);">
+      <div class="flex items-center justify-between mb-16">
+        <div class="label">Order Details</div>
+        <div class="badge badge-success">Paid</div>
+      </div>
+      <div class="flex flex-col gap-12">
+        <div class="flex items-center justify-between">
+          <span class="body-sm">Event</span>
+          <span style="font-size:13px;font-weight:600;text-align:right;max-width:180px;">Tech Summit 2026</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="body-sm">Ticket</span>
+          <span style="font-size:13px;font-weight:600;">Standard x 1</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="body-sm">Order ID</span>
+          <span style="font-family:var(--font-mono);font-size:13px;font-weight:600;">#M4E-2026-0847</span>
+        </div>
+        <div class="divider" style="margin:4px 0;"></div>
+        <div class="flex items-center justify-between">
+          <span style="font-size:14px;font-weight:700;">Total Paid</span>
+          <span style="font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--color-primary);">26,500 AR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <button class="btn-primary w-full mb-12">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      View My Ticket
+    </button>
+    <button class="btn-secondary w-full">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      Back to Event
+    </button>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 09 — QR TICKET                        -->
+<!-- ============================================ -->
+<div class="screen" id="screen-09">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content flex flex-col items-center">
+    <div class="flex items-center justify-between mb-24 w-full">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>My Ticket</h2>
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      </div>
+    </div>
+
+    <!-- Ticket Card -->
+    <div class="card w-full mb-20" style="background:var(--surface-elevated);padding:0;overflow:hidden;">
+      <!-- Ticket Header -->
+      <div style="padding:24px 24px 20px;border-bottom:1px dashed var(--border-default);">
+        <div class="flex items-center gap-8 mb-12">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--state-success);"></div>
+          <span class="caption" style="color:var(--state-success);">Valid Ticket</span>
+        </div>
+        <h2 style="font-size:22px;">Tech Summit Antananarivo 2026</h2>
+        <div class="body-sm mt-8">March 15, 2026 — 09:00 GMT+3</div>
+      </div>
+
+      <!-- QR Code -->
+      <div style="padding:32px 24px;text-align:center;">
+        <div style="width:200px;height:200px;margin:0 auto 20px;background:var(--text-primary);padding:16px;display:flex;align-items:center;justify-content:center;">
+          <!-- QR Code Pattern -->
+          <div style="width:100%;height:100%;display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(11,1fr);gap:2px;">
+            <!-- Row 1 -->
+            <div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 2 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 3 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 4 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 5 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 6 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 7 -->
+            <div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 8 -->
+            <div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div>
+            <!-- Row 9 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 10 -->
+            <div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div>
+            <!-- Row 11 -->
+            <div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:transparent;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div><div style="background:#0A0A0A;"></div>
+          </div>
+        </div>
+        <div class="label" style="color:var(--text-tertiary);">Scan at entry</div>
+      </div>
+
+      <!-- Ticket Details -->
+      <div style="padding:0 24px 24px;">
+        <div style="height:1px;background:var(--border-default);margin-bottom:20px;"></div>
+        <div class="grid-2 gap-16">
+          <div>
+            <div class="caption mb-4">Name</div>
+            <div style="font-size:14px;font-weight:600;">Heritiana F.</div>
+          </div>
+          <div>
+            <div class="caption mb-4">Ticket Type</div>
+            <div style="font-size:14px;font-weight:600;">Standard</div>
+          </div>
+          <div>
+            <div class="caption mb-4">Order ID</div>
+            <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;">#M4E-0847</div>
+          </div>
+          <div>
+            <div class="caption mb-4">Gate</div>
+            <div style="font-size:14px;font-weight:600;">Main Entrance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share -->
+    <button class="btn-secondary w-full mb-12">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+      Share Ticket
+    </button>
+    <button class="btn-secondary w-full">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+      Add to Wallet
+    </button>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 10 — MY TICKETS                       -->
+<!-- ============================================ -->
+<div class="screen" id="screen-10">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="flex items-center justify-between mb-24">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>My Tickets</h2>
+      <div style="width:44px;"></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex mb-24" style="border-bottom:1px solid var(--border-default);">
+      <div class="flex-1 text-center" style="padding:12px 0;border-bottom:2px solid var(--color-primary);">
+        <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-primary);">Upcoming</span>
+      </div>
+      <div class="flex-1 text-center" style="padding:12px 0;">
+        <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);">Past</span>
+      </div>
+    </div>
+
+    <!-- Upcoming Ticket -->
+    <div class="card mb-16" style="border-left:3px solid var(--color-primary);">
+      <div class="flex items-center justify-between mb-12">
+        <span class="badge badge-primary">Standard</span>
+        <div class="flex items-center gap-4">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--state-success);"></div>
+          <span class="caption" style="color:var(--state-success);">Confirmed</span>
+        </div>
+      </div>
+      <h3 class="mb-8">Tech Summit Antananarivo 2026</h3>
+      <div class="flex items-center gap-16 mb-12">
+        <div class="flex items-center gap-4">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--text-tertiary)"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+          <span class="caption">Mar 15, 2026</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--text-tertiary)"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          <span class="caption">09:00</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 mb-16">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--text-tertiary)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span class="caption">Hotel Radisson Blu</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--text-tertiary);">#M4E-2026-0847</span>
+        <button class="btn-primary btn-sm" style="width:auto;">View Ticket</button>
+      </div>
+    </div>
+
+    <!-- Another Upcoming Ticket -->
+    <div class="card mb-16">
+      <div class="flex items-center justify-between mb-12">
+        <span class="badge badge-outline">VIP</span>
+        <div class="flex items-center gap-4">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--state-success);"></div>
+          <span class="caption" style="color:var(--state-success);">Confirmed</span>
+        </div>
+      </div>
+      <h3 class="mb-8">AI Workshop Tana</h3>
+      <div class="flex items-center gap-16 mb-12">
+        <div class="flex items-center gap-4">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--text-tertiary)"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+          <span class="caption">Apr 5, 2026</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--text-tertiary)"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          <span class="caption">14:00</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 mb-16">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="var(--text-tertiary)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <span class="caption">Ecole 42, Antananarivo</span>
+      </div>
+      <div class="flex items-center justify-between">
+        <span style="font-family:var(--font-mono);font-size:12px;font-weight:600;color:var(--text-tertiary);">#M4E-2026-1203</span>
+        <button class="btn-secondary btn-sm" style="width:auto;">View Ticket</button>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN 11 — TICKET DETAILS                   -->
+<!-- ============================================ -->
+<div class="screen" id="screen-11">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="flex items-center justify-between mb-24">
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      </div>
+      <h2>Ticket Details</h2>
+      <div class="btn-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+    </div>
+
+    <!-- Ticket Card -->
+    <div class="card mb-20" style="background:var(--surface-elevated);">
+      <div class="flex items-center gap-8 mb-16">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--state-success);"></div>
+        <span class="caption" style="color:var(--state-success);">Valid</span>
+        <div style="flex:1;"></div>
+        <span class="badge badge-primary">Standard</span>
+      </div>
+
+      <h2 style="font-size:22px;" class="mb-16">Tech Summit Antananarivo 2026</h2>
+
+      <div class="flex flex-col gap-16">
+        <div class="flex items-center gap-12">
+          <div class="icon-circle-sm" style="width:36px;height:36px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-primary)"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+          </div>
+          <div>
+            <div class="caption mb-2">Date</div>
+            <div style="font-size:14px;font-weight:600;">Saturday, March 15, 2026</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-12">
+          <div class="icon-circle-sm" style="width:36px;height:36px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-primary)"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+          </div>
+          <div>
+            <div class="caption mb-2">Time</div>
+            <div style="font-size:14px;font-weight:600;">09:00 — 17:00 (GMT+3)</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-12">
+          <div class="icon-circle-sm" style="width:36px;height:36px;">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-primary)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          </div>
+          <div>
+            <div class="caption mb-2">Location</div>
+            <div style="font-size:14px;font-weight:600;">Hotel Radisson Blu</div>
+            <div class="caption mt-2">67 Rue Ramanantoanina, Analakely</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="grid-2 gap-16">
+        <div>
+          <div class="caption mb-4">Attendee</div>
+          <div style="font-size:14px;font-weight:600;">Heritiana Fitiavana</div>
+        </div>
+        <div>
+          <div class="caption mb-4">Gate</div>
+          <div style="font-size:14px;font-weight:600;">Main Entrance</div>
+        </div>
+        <div>
+          <div class="caption mb-4">Order ID</div>
+          <div style="font-family:var(--font-mono);font-size:14px;font-weight:600;">#M4E-2026-0847</div>
+        </div>
+        <div>
+          <div class="caption mb-4">Price</div>
+          <div style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--color-primary);">26,500 AR</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col gap-12">
+      <button class="btn-primary">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+        Show QR Code
+      </button>
+      <button class="btn-secondary">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+        Share Ticket
+      </button>
+      <button class="btn-secondary">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        Download Ticket
+      </button>
+    </div>
+
+    <!-- Cancellation Policy -->
+    <div class="mt-24">
+      <div class="card" style="background:var(--surface-elevated);">
+        <div class="flex items-center gap-8 mb-8">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-tertiary)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+          <span class="caption">Cancellation Policy</span>
+        </div>
+        <p class="body-sm">Full refund up to 7 days before the event. 50% refund within 7 days. No refund on the event day.</p>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+
+</div>
+
+<script>
+function buildNav() {
+  var ids = [];
+  document.querySelectorAll('.screen').forEach(function(s) {
+    if (s.id) ids.push(s.id.replace('screen-', ''));
+  });
+  var nav = document.getElementById('screenNav');
+  if (!nav) return;
+  ids.forEach(function(id) {
+    var btn = document.createElement('button');
+    btn.textContent = id.replace(/-/g, ' ');
+    btn.onclick = function() { showScreen(id); };
+    nav.appendChild(btn);
+  });
+  if (ids.length > 0) showScreen(ids[0]);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  var target = document.getElementById('screen-' + id);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(function(b) {
+    b.classList.remove('active');
+    if (b.textContent.replace(/\s/g, '-') === id || b.textContent === id.replace(/-/g, ' ')) b.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+buildNav();
+</script>
+</body>
+</html>

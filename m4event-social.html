@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430, initial-scale=1">
+<title>M4Event — Social Features</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-primary: #E61919;
+  --color-on-primary: #0B0B0B;
+  --color-accent: #ECECEA;
+  --surface-page: #0B0B0B;
+  --surface-card: #131312;
+  --surface-elevated: #1A1A19;
+  --surface-sunken: #050505;
+  --text-primary: #ECECEA;
+  --text-secondary: #9F9F9C;
+  --text-tertiary: #6A6A67;
+  --text-disabled: #3A3A36;
+  --border-default: #2A2A27;
+  --border-strong: #3A3A36;
+  --border-focus: #E61919;
+  --action-primary: #E61919;
+  --action-primary-hover: #FF2A2A;
+  --action-secondary: #1A1A19;
+  --action-secondary-hover: #2A2A27;
+  --state-success: #4AF626;
+  --state-success-bg: rgba(74,246,38,0.12);
+  --state-warning: #E0A819;
+  --state-warning-bg: rgba(224,168,25,0.12);
+  --state-danger: #E61919;
+  --state-danger-bg: rgba(230,25,25,0.12);
+  --state-info: #4AF626;
+  --state-info-bg: rgba(74,246,38,0.12);
+  --font-display: 'Archivo Black', 'Inter', sans-serif;
+  --font-body: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-full: 0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--surface-page);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  min-height: 100vh;
+}
+
+/* Screen nav */
+.screen-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface-page);
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 24px;
+}
+.screen-nav button {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 150ms;
+}
+.screen-nav button:hover,
+.screen-nav button.active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+/* iPhone frame */
+.iphone-frame {
+  width: 390px;
+  background: var(--surface-page);
+  border-radius: 44px;
+  border: 3px solid #333;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 0 1px #555, 0 20px 60px rgba(0,0,0,0.8);
+}
+.iphone-frame .status-bar {
+  height: var(--status-bar-height);
+  background: var(--surface-page);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  position: relative;
+}
+.iphone-frame .status-bar .dynamic-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 33px;
+  background: #000;
+  border-radius: 20px;
+}
+.iphone-frame .status-bar .time { z-index: 1; }
+.iphone-frame .status-bar .icons { display: flex; gap: 6px; align-items: center; z-index: 1; }
+.iphone-frame .status-bar .icons svg { width: 16px; height: 16px; fill: currentColor; }
+.iphone-frame .screen-content {
+  min-height: 700px;
+  padding: 0 24px 24px;
+  padding-bottom: 24px;
+}
+.iphone-frame .home-indicator {
+  height: var(--home-indicator-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iphone-frame .home-indicator .bar {
+  width: 130px;
+  height: 5px;
+  background: #333;
+  border-radius: 3px;
+}
+
+/* Screen visibility */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Typography */
+.label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.body-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.small-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+
+/* Buttons */
+.btn-primary {
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--action-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: background 150ms;
+}
+.btn-secondary {
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.btn-outline {
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* Cards */
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.phantom-mask {
+  position: relative;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+.phantom-mask::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: -1;
+}
+.divider-hr {
+  height: 4px;
+  background: var(--color-primary);
+  border: none;
+  margin: 24px 0;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 12px 0 8px;
+  border-top: 1px solid var(--border-default);
+  margin-top: 16px;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.bottom-nav-item.active { color: var(--color-primary); }
+.bottom-nav-item svg { width: 22px; height: 22px; }
+
+/* Avatar */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--surface-elevated);
+  border: 2px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+.avatar-sm { width: 32px; height: 32px; font-size: 12px; }
+.avatar-lg { width: 56px; height: 56px; font-size: 20px; }
+
+/* Badge */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.badge-success { background: var(--state-success-bg); color: var(--state-success); }
+.badge-warning { background: var(--state-warning-bg); color: var(--state-warning); }
+.badge-danger { background: var(--state-danger-bg); color: var(--state-danger); }
+.badge-info { background: var(--state-info-bg); color: var(--state-info); }
+.badge-neutral { background: var(--surface-elevated); color: var(--text-secondary); }
+
+/* Photo grid */
+.photo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 3px;
+}
+.photo-grid .photo-item {
+  aspect-ratio: 1;
+  background: var(--surface-elevated);
+  position: relative;
+  overflow: hidden;
+}
+.photo-grid .photo-item.span-2 {
+  grid-column: span 2;
+}
+.photo-grid .photo-item.tall {
+  grid-row: span 2;
+}
+.photo-item .photo-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+}
+.photo-item .photo-overlay svg { width: 12px; height: 12px; fill: currentColor; }
+
+/* Comment */
+.comment-row {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.comment-row:last-child { border-bottom: none; }
+.comment-body { flex: 1; }
+.comment-body .comment-author {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.comment-body .comment-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.comment-body .comment-meta {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: flex;
+  gap: 16px;
+}
+
+/* Notification */
+.notif-row {
+  display: flex;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.notif-row:last-child { border-bottom: none; }
+.notif-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+.notif-icon svg { width: 20px; height: 20px; }
+.notif-body { flex: 1; }
+.notif-body .notif-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+.notif-body .notif-text strong { color: var(--text-primary); font-weight: 600; }
+.notif-body .notif-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+.notif-row.unread { background: var(--surface-elevated); margin: 0 -24px; padding: 18px 24px; border-radius: var(--radius-md); border-bottom-color: transparent; }
+
+/* Section headers */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.section-header h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.section-header .see-all {
+  font-size: 13px;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Like animation placeholder */
+.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.like-btn.liked { color: var(--color-primary); }
+.like-btn svg { width: 20px; height: 20px; }
+
+/* Tab bar */
+.tab-bar {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 20px;
+}
+.tab-item {
+  flex: 1;
+  padding: 12px 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+.tab-item.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* Media queries */
+@media (max-width: 460px) {
+  .iphone-frame { width: 100%; border-radius: 0; border-width: 0; }
+  .iphone-frame .status-bar { padding: 0 20px; }
+  .iphone-frame .screen-content { padding: 0 16px; padding-bottom: 16px; }
+}
+
+/* ===== BRUTALIST TASTE — full override ===== */
+
+/* CRT scanlines overlay */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.18) 2px 3px);
+  mix-blend-mode: multiply; opacity: 0.55;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
+}
+
+/* Base reset */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--surface-page) !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum";
+  line-height: 1.55;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
+}
+
+/* Cards — no radius, no shadow, flat */
+.card, .event-card, .stat-box, .meta-item {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Buttons — flat, mono, uppercase */
+.btn-primary, button.btn-primary, a.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--action-primary) !important;
+  color: #0B0B0B !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+}
+.btn-primary:hover {
+  background: var(--action-primary-hover) !important;
+}
+
+.btn-secondary, button.btn-secondary, a.btn-secondary, .btn-outline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 9px 19px !important;
+  cursor: pointer !important;
+}
+.btn-secondary:hover {
+  border-color: var(--text-primary) !important;
+}
+
+/* Badges and tags — no radius */
+.badge, .tag {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 4px 10px !important;
+}
+.badge-primary {
+  background: var(--color-primary) !important;
+  color: #0B0B0B !important;
+}
+
+/* Inputs — flat, mono */
+input, textarea, select, .input-field, .search-bar input {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  border: 1px solid var(--border-default) !important;
+  background: #050505 !important;
+  color: var(--text-primary) !important;
+  padding: 10px 14px !important;
+}
+input:focus, textarea:focus, .input-field:focus {
+  border-color: var(--color-primary) !important;
+  outline: none !important;
+}
+
+/* Avatars — no radius */
+.avatar {
+  border-radius: 0 !important;
+}
+
+/* Dividers */
+.divider {
+  border-color: var(--border-default) !important;
+}
+
+/* Screen containers */
+.phone, .phone-frame, .iphone-frame {
+  border-radius: 0 !important;
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-page) !important;
+  box-shadow: none !important;
+}
+
+/* Status bar — match brutalist topbar */
+.status-bar {
+  border-bottom: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-secondary) !important;
+}
+.status-bar .time {
+  color: var(--text-primary) !important;
+}
+
+/* Home indicator */
+.home-indicator .bar, .home-indicator > div {
+  background: var(--border-strong) !important;
+  border-radius: 0 !important;
+}
+
+/* Navigation items */
+.nav-item {
+  border-radius: 0 !important;
+}
+.nav-item.active, .nav-item:hover {
+  background: var(--surface-elevated) !important;
+}
+
+/* Toggle switches */
+.toggle {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.toggle.active {
+  background: var(--color-primary) !important;
+}
+
+/* Steps indicator */
+.step-dot {
+  border-radius: 0 !important;
+}
+.step-dot.active {
+  background: var(--color-primary) !important;
+}
+.step-line {
+  background: var(--border-default) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.progress-fill {
+  border-radius: 0 !important;
+  background: var(--color-primary) !important;
+}
+
+/* Tables and grids */
+.grid-2, .grid-3, .grid-4 {
+  gap: 1px !important;
+}
+.phone-frame .grid-2 > *, .phone-frame .grid-3 > *, .phone-frame .grid-4 > * {
+  background: var(--surface-card) !important;
+  border: none !important;
+}
+
+/* Icons in circles */
+.icon-circle, .icon-circle-sm {
+  border-radius: 0 !important;
+  background: var(--surface-elevated) !important;
+}
+
+/* Typography overrides */
+.caption {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+.body-sm, .body-text, p {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: var(--text-secondary) !important;
+}
+.section-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  color: var(--color-primary) !important;
+}
+
+/* Empty states */
+.empty-state {
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+}
+.empty-icon {
+  border-radius: 0 !important;
+}
+.empty-title {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text-primary) !important;
+}
+
+/* Filter options */
+.filter-option {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+}
+.filter-option:hover {
+  border-color: var(--color-primary) !important;
+}
+
+/* Event cards */
+.card-image {
+  border-radius: 0 !important;
+}
+
+/* Notification badges */
+.notif-dot, .notif-count {
+  border-radius: 0 !important;
+}
+
+/* Checkbox / radio style */
+input[type="radio"], input[type="checkbox"] {
+  border-radius: 0 !important;
+}
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  background: var(--color-primary) !important;
+}
+
+/* Bottom nav */
+.bottom-nav-item {
+  border-radius: 0 !important;
+}
+.bottom-nav-item.active {
+  border-top-color: var(--color-primary) !important;
+}
+
+/* All border-radius zero-out */
+[style*="border-radius"] {
+  border-radius: 0 !important;
+}
+
+/* Chat/message bubbles */
+.message-bubble {
+  border-radius: 0 !important;
+}
+
+/* Stats */
+.stat-value {
+  font-family: var(--font-display) !important;
+  font-size: 32px !important;
+  letter-spacing: -0.03em !important;
+  color: var(--text-primary) !important;
+}
+.stat-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-page); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+</style>
+</head>
+<body>
+
+<!-- Screen Navigation -->
+<nav class="screen-nav">
+  <button class="active" onclick="showScreen('photo-wall')">Photo Wall</button>
+  <button onclick="showScreen('photo-upload')">Photo Upload</button>
+  <button onclick="showScreen('photo-detail')">Photo Detail</button>
+  <button onclick="showScreen('likes')">Likes</button>
+  <button onclick="showScreen('comments')">Comments</button>
+  <button onclick="showScreen('live-feed')">Live Feed</button>
+  <button onclick="showScreen('notifications')">Notifications</button>
+  <button onclick="showScreen('activity-feed')">Activity Feed</button>
+</nav>
+
+<!-- ==================== SCREEN 01: PHOTO WALL ==================== -->
+<div id="photo-wall" class="screen active">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Event header -->
+      <div style="margin-bottom: 24px;">
+        <span class="label" style="margin-bottom: 8px; display: block;">Event Photos</span>
+        <h1 style="font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">Summer Music Festival</h1>
+        <p style="font-size: 14px; color: var(--text-tertiary);">248 photos from 42 attendees</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <div class="tab-item active">Gallery</div>
+        <div class="tab-item">Live Feed</div>
+        <div class="tab-item">My Photos</div>
+      </div>
+
+      <!-- Photo grid -->
+      <div class="photo-grid">
+        <div class="photo-item" style="background: #1a1a2e;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            34
+          </div>
+        </div>
+        <div class="photo-item" style="background: #1a2e1a;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            18
+          </div>
+        </div>
+        <div class="photo-item" style="background: #2e1a1a;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            42
+          </div>
+        </div>
+        <div class="photo-item span-2" style="background: #1a1a2e;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            56
+          </div>
+        </div>
+        <div class="photo-item" style="background: #2e2e1a;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            12
+          </div>
+        </div>
+        <div class="photo-item" style="background: #1a2e2e;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            28
+          </div>
+        </div>
+        <div class="photo-item" style="background: #2e1a2e;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            9
+          </div>
+        </div>
+        <div class="photo-item span-2" style="background: #1a1a1a;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            67
+          </div>
+        </div>
+        <div class="photo-item" style="background: #1a1a2e;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:32px;height:32px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <div class="photo-overlay">
+            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            21
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload floating button -->
+      <div style="position:fixed;bottom:80px;right:calc(50% - 175px);width:56px;height:56px;background:var(--color-primary);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:50;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="bottom-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+          Home
+        </div>
+        <div class="bottom-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search
+        </div>
+        <div class="bottom-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Events
+        </div>
+        <div class="bottom-nav-item active">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          Photos
+        </div>
+        <div class="bottom-nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Profile
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 02: PHOTO UPLOAD ==================== -->
+<div id="photo-upload" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          <h1 style="font-family:var(--font-display);font-size:22px;font-weight:700;">Upload Photo</h1>
+        </div>
+        <button style="background:var(--color-primary);color:white;border:none;padding:14px 24px;border-radius:var(--radius-md);font-family:var(--font-body);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">Post</button>
+      </div>
+
+      <!-- Photo preview area -->
+      <div style="width:100%;aspect-ratio:1;background:var(--surface-elevated);border:2px dashed var(--border-strong);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;margin-bottom:28px;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        <div style="text-align:center;">
+          <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Tap to select a photo</p>
+          <p style="font-size:13px;color:var(--text-tertiary);">JPG, PNG or HEIC up to 25MB</p>
+        </div>
+      </div>
+
+      <!-- Photo source options -->
+      <div style="display:flex;gap:12px;margin-bottom:28px;">
+        <div style="flex:1;padding:16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);">Gallery</span>
+        </div>
+        <div style="flex:1;padding:16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);">Camera</span>
+        </div>
+      </div>
+
+      <!-- Caption input -->
+      <div style="margin-bottom:24px;">
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px;">Caption</label>
+        <textarea style="width:100%;height:80px;padding:14px 16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);color:var(--text-primary);font-family:var(--font-body);font-size:15px;resize:none;outline:none;" placeholder="Write a caption..."></textarea>
+      </div>
+
+      <!-- Tag people -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);margin-bottom:16px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span style="font-size:15px;color:var(--text-secondary);">Tag People</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Location -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);margin-bottom:16px;cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span style="font-size:15px;color:var(--text-secondary);">Add Location</span>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+
+      <!-- Visibility -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span style="font-size:15px;color:var(--text-secondary);">Visibility</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;color:var(--text-tertiary);">Everyone</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 03: PHOTO DETAIL ==================== -->
+<div id="photo-detail" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content" style="padding:0;">
+      <!-- Header bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border-default);">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);">Photo</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </div>
+
+      <!-- Photo area -->
+      <div style="width:100%;aspect-ratio:1;background:#1a1a2e;position:relative;">
+        <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:64px;height:64px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+      </div>
+
+      <!-- Action bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border-default);">
+        <div style="display:flex;gap:24px;">
+          <button class="like-btn liked">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            124
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            38
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+        <button class="like-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+        </button>
+      </div>
+
+      <!-- Likes info -->
+      <div style="padding:16px 24px;border-bottom:1px solid var(--border-default);">
+        <p style="font-size:14px;font-weight:600;color:var(--text-primary);margin-bottom:4px;">Liked by <span style="color:var(--color-primary);">Sarah M.</span> and <span style="color:var(--color-primary);">123 others</span></p>
+        <p style="font-size:13px;color:var(--text-tertiary);">2 hours ago</p>
+      </div>
+
+      <!-- Caption -->
+      <div style="padding:16px 24px;border-bottom:1px solid var(--border-default);">
+        <p style="font-size:14px;line-height:1.6;color:var(--text-secondary);">
+          <span style="font-weight:600;color:var(--text-primary);">alex_photography</span> Amazing sunset at the festival! The energy was incredible.
+        </p>
+      </div>
+
+      <!-- View all comments -->
+      <div style="padding:16px 24px;border-bottom:1px solid var(--border-default);">
+        <p style="font-size:13px;color:var(--text-tertiary);cursor:pointer;">View all 38 comments</p>
+
+        <!-- Preview comments -->
+        <div style="margin-top:12px;">
+          <p style="font-size:14px;margin-bottom:6px;">
+            <span style="font-weight:600;color:var(--text-primary);">maria_live</span>
+            <span style="color:var(--text-secondary);"> This is stunning! Need to be there next year.</span>
+          </p>
+          <p style="font-size:14px;">
+            <span style="font-weight:600;color:var(--text-primary);">dj_beats</span>
+            <span style="color:var(--text-secondary);"> Best night of the summer!</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Add comment -->
+      <div style="display:flex;align-items:center;gap:12px;padding:16px 24px;">
+        <div class="avatar avatar-sm" style="font-size:10px;">Y</div>
+        <div style="flex:1;padding:10px 14px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-full);font-size:14px;color:var(--text-tertiary);">Add a comment...</div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 04: LIKES ==================== -->
+<div id="likes" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <h1 style="font-family:var(--font-display);font-size:22px;font-weight:700;">Liked By</h1>
+        <span style="font-size:14px;color:var(--text-tertiary);">124</span>
+      </div>
+
+      <!-- Like list -->
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <!-- User 1 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <div class="avatar" style="background:#1a1a2e;">S</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">sarah_music</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">Sarah Mitchell</p>
+          </div>
+          <button style="padding:14px 24px;background:transparent;border:1.5px solid var(--border-strong);border-radius:var(--radius-md);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);cursor:pointer;">Follow</button>
+        </div>
+        <!-- User 2 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <div class="avatar" style="background:#2e1a1a;">D</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">dj_beats</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">David James</p>
+          </div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-primary);">Following</span>
+        </div>
+        <!-- User 3 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <div class="avatar" style="background:#1a2e1a;">M</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">maria_live</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">Maria Santos</p>
+          </div>
+          <button style="padding:14px 24px;background:transparent;border:1.5px solid var(--border-strong);border-radius:var(--radius-md);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);cursor:pointer;">Follow</button>
+        </div>
+        <!-- User 4 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <div class="avatar" style="background:#2e2e1a;">A</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">alex_photography</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">Alex Chen</p>
+          </div>
+          <button style="padding:14px 24px;background:transparent;border:1.5px solid var(--border-strong);border-radius:var(--radius-md);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);cursor:pointer;">Follow</button>
+        </div>
+        <!-- User 5 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <div class="avatar" style="background:#1a2e2e;">J</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">julia_art</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">Julia Arturo</p>
+          </div>
+          <button style="padding:14px 24px;background:transparent;border:1.5px solid var(--border-strong);border-radius:var(--radius-md);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);cursor:pointer;">Follow</button>
+        </div>
+        <!-- User 6 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <div class="avatar" style="background:#2e1a2e;">R</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">rhythm_king</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">Ryan Kim</p>
+          </div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-primary);">Following</span>
+        </div>
+        <!-- User 7 -->
+        <div style="display:flex;align-items:center;gap:14px;padding:14px 0;">
+          <div class="avatar" style="background:#1a1a1a;">E</div>
+          <div style="flex:1;">
+            <p style="font-size:15px;font-weight:600;color:var(--text-primary);margin-bottom:2px;">emma_vibes</p>
+            <p style="font-size:13px;color:var(--text-tertiary);">Emma Wilson</p>
+          </div>
+          <button style="padding:14px 24px;background:transparent;border:1.5px solid var(--border-strong);border-radius:var(--radius-md);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);cursor:pointer;">Follow</button>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 05: COMMENTS ==================== -->
+<div id="comments" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <h1 style="font-family:var(--font-display);font-size:22px;font-weight:700;">Comments</h1>
+        <span style="font-size:14px;color:var(--text-tertiary);">38</span>
+      </div>
+
+      <!-- Comment list -->
+      <div style="display:flex;flex-direction:column;">
+        <!-- Comment 1 -->
+        <div class="comment-row">
+          <div class="avatar avatar-sm" style="background:#1a1a2e;">S</div>
+          <div class="comment-body">
+            <div class="comment-author">sarah_music</div>
+            <div class="comment-text">This is stunning! Need to be there next year. The atmosphere looks absolutely incredible.</div>
+            <div class="comment-meta">
+              <span>2h ago</span>
+              <span style="color:var(--color-primary);font-weight:600;cursor:pointer;">Reply</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--color-primary)" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                12
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment 2 -->
+        <div class="comment-row">
+          <div class="avatar avatar-sm" style="background:#2e1a1a;">D</div>
+          <div class="comment-body">
+            <div class="comment-author">dj_beats</div>
+            <div class="comment-text">Best night of the summer! Who else was there?</div>
+            <div class="comment-meta">
+              <span>3h ago</span>
+              <span style="color:var(--color-primary);font-weight:600;cursor:pointer;">Reply</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--color-primary)" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                8
+              </span>
+            </div>
+            <!-- Reply -->
+            <div style="margin-top:12px;padding:12px;background:var(--surface-elevated);border-radius:var(--radius-md);border-left:2px solid var(--color-primary);">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <div class="avatar" style="width:24px;height:24px;font-size:9px;background:#1a2e1a;">M</div>
+                <span style="font-size:13px;font-weight:600;color:var(--text-primary);">maria_live</span>
+              </div>
+              <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;">I was! Absolutely magical experience.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment 3 -->
+        <div class="comment-row">
+          <div class="avatar avatar-sm" style="background:#1a2e1a;">M</div>
+          <div class="comment-body">
+            <div class="comment-author">maria_live</div>
+            <div class="comment-text">The lineup was perfect this year. Can not wait for the next one!</div>
+            <div class="comment-meta">
+              <span>5h ago</span>
+              <span style="color:var(--color-primary);font-weight:600;cursor:pointer;">Reply</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                5
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment 4 -->
+        <div class="comment-row">
+          <div class="avatar avatar-sm" style="background:#2e2e1a;">A</div>
+          <div class="comment-body">
+            <div class="comment-author">alex_photography</div>
+            <div class="comment-text">Thanks for the love everyone! I have more photos from the night — will upload them soon.</div>
+            <div class="comment-meta">
+              <span>6h ago</span>
+              <span style="color:var(--color-primary);font-weight:600;cursor:pointer;">Reply</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--color-primary)" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                22
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comment 5 -->
+        <div class="comment-row">
+          <div class="avatar avatar-sm" style="background:#2e1a2e;">R</div>
+          <div class="comment-body">
+            <div class="comment-author">rhythm_king</div>
+            <div class="comment-text">The sound system was insane. Pure quality.</div>
+            <div class="comment-meta">
+              <span>8h ago</span>
+              <span style="color:var(--color-primary);font-weight:600;cursor:pointer;">Reply</span>
+              <span style="display:flex;align-items:center;gap:4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                3
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add comment input -->
+      <div style="display:flex;align-items:center;gap:12px;padding:16px 0;margin-top:8px;border-top:1px solid var(--border-default);">
+        <div class="avatar avatar-sm" style="background:var(--surface-elevated);">Y</div>
+        <div style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-full);">
+          <span style="flex:1;font-size:14px;color:var(--text-tertiary);">Add a comment...</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 06: LIVE FEED ==================== -->
+<div id="live-feed" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <h1 style="font-family:var(--font-display);font-size:22px;font-weight:700;">Live Feed</h1>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:8px;height:8px;border-radius:var(--radius-full);background:var(--state-success);"></div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--state-success);">Live</span>
+        </div>
+      </div>
+
+      <!-- Live post 1 -->
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div class="avatar avatar-sm" style="background:#1a1a2e;">S</div>
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text-primary);">sarah_music</p>
+            <p style="font-size:11px;color:var(--text-tertiary);">Just now</p>
+          </div>
+          <div style="margin-left:auto;padding:3px 8px;background:var(--state-danger-bg);border-radius:var(--radius-full);">
+            <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--state-danger);">Live</span>
+          </div>
+        </div>
+        <div style="width:100%;aspect-ratio:16/10;background:#1a1a2e;border-radius:var(--radius-md);border:1px solid var(--border-default);position:relative;margin-bottom:10px;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        </div>
+        <div style="display:flex;gap:20px;">
+          <button class="like-btn liked">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            47
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            12
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <hr class="divider-hr" style="margin:20px 0;">
+
+      <!-- Live post 2 -->
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div class="avatar avatar-sm" style="background:#2e1a1a;">D</div>
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text-primary);">dj_beats</p>
+            <p style="font-size:11px;color:var(--text-tertiary);">5 min ago</p>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;">The main stage is about to start! Everyone get ready.</p>
+        <div style="width:100%;aspect-ratio:16/10;background:#2e1a1a;border-radius:var(--radius-md);border:1px solid var(--border-default);position:relative;margin-bottom:10px;">
+          <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;fill:#3D3D3D;" viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        </div>
+        <div style="display:flex;gap:20px;">
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            31
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            8
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <hr class="divider-hr" style="margin:20px 0;">
+
+      <!-- Live post 3 -->
+      <div style="margin-bottom:24px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+          <div class="avatar avatar-sm" style="background:#1a2e2e;">J</div>
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--text-primary);">julia_art</p>
+            <p style="font-size:11px;color:var(--text-tertiary);">12 min ago</p>
+          </div>
+        </div>
+        <p style="font-size:14px;color:var(--text-secondary);line-height:1.6;margin-bottom:12px;">The art installations are breathtaking. Here is a sneak peek.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;border-radius:var(--radius-md);overflow:hidden;margin-bottom:10px;">
+          <div style="aspect-ratio:1;background:#1a2e2e;"></div>
+          <div style="aspect-ratio:1;background:#2e1a2e;"></div>
+        </div>
+        <div style="display:flex;gap:20px;">
+          <button class="like-btn liked">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            56
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            15
+          </button>
+          <button class="like-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 07: NOTIFICATIONS ==================== -->
+<div id="notifications" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+        <h1 style="font-family:var(--font-display);font-size:22px;font-weight:700;">Notifications</h1>
+        <span style="font-size:13px;color:var(--color-primary);font-weight:600;cursor:pointer;">Mark all read</span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <div class="tab-item active">All</div>
+        <div class="tab-item">Mentions</div>
+        <div class="tab-item">Likes</div>
+      </div>
+
+      <!-- Today -->
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:16px;">Today</p>
+
+      <div class="notif-row unread">
+        <div class="notif-icon" style="background:var(--state-danger-bg);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text"><strong>sarah_music</strong> liked your photo from Summer Music Festival</div>
+          <div class="notif-time">2 minutes ago</div>
+        </div>
+      </div>
+
+      <div class="notif-row unread">
+        <div class="notif-icon" style="background:var(--state-info-bg);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--state-info)" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text"><strong>maria_live</strong> commented on your photo: "This is stunning!"</div>
+          <div class="notif-time">15 minutes ago</div>
+        </div>
+      </div>
+
+      <div class="notif-row unread">
+        <div class="notif-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text"><strong>alex_photography</strong> invited you to Photo Walk 2026</div>
+          <div class="notif-time">1 hour ago</div>
+        </div>
+      </div>
+
+      <!-- Yesterday -->
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin:24px 0 16px;">Yesterday</p>
+
+      <div class="notif-row">
+        <div class="notif-icon" style="background:var(--state-success-bg);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--state-success)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text">Your ticket for <strong>Summer Music Festival</strong> has been confirmed</div>
+          <div class="notif-time">Yesterday at 3:42 PM</div>
+        </div>
+      </div>
+
+      <div class="notif-row">
+        <div class="notif-icon" style="background:var(--state-danger-bg);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text"><strong>dj_beats</strong> and <strong>12 others</strong> liked your post</div>
+          <div class="notif-time">Yesterday at 1:18 PM</div>
+        </div>
+      </div>
+
+      <div class="notif-row">
+        <div class="notif-icon" style="background:var(--surface-elevated);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text">Reminder: <strong>Tech Meetup</strong> starts in 2 days</div>
+          <div class="notif-time">Yesterday at 9:00 AM</div>
+        </div>
+      </div>
+
+      <!-- This week -->
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);margin:24px 0 16px;">This Week</p>
+
+      <div class="notif-row">
+        <div class="notif-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text"><strong>julia_art</strong> started following you</div>
+          <div class="notif-time">3 days ago</div>
+        </div>
+      </div>
+
+      <div class="notif-row">
+        <div class="notif-icon" style="background:var(--state-warning-bg);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--state-warning)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div class="notif-body">
+          <div class="notif-text">Your event <strong>Design Workshop</strong> needs a cover photo</div>
+          <div class="notif-time">5 days ago</div>
+        </div>
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 08: ACTIVITY FEED ==================== -->
+<div id="activity-feed" class="screen">
+  <div class="iphone-frame">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="dynamic-island"></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4zM13 18h-2v-2h2v2zm0-4h-2V9h2v5z"/></svg>
+      </div>
+    </div>
+    <div class="screen-content">
+      <!-- Header -->
+      <div style="margin-bottom:24px;">
+        <span class="label" style="margin-bottom:8px;display:block;">Activity</span>
+        <h1 style="font-family:var(--font-display);font-size:28px;font-weight:700;">Your Feed</h1>
+      </div>
+
+      <!-- Activity items -->
+      <div style="display:flex;flex-direction:column;gap:0;">
+
+        <!-- Activity 1 -->
+        <div style="display:flex;gap:14px;padding:18px 0;border-bottom:1px solid var(--border-default);">
+          <div style="position:relative;">
+            <div class="avatar" style="background:#1a1a2e;">S</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--color-primary);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface-page);">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">
+              <strong style="color:var(--text-primary);">sarah_music</strong> liked your photo from <strong style="color:var(--text-primary);">Summer Music Festival</strong>
+            </p>
+            <p style="font-size:12px;color:var(--text-tertiary);">2 min ago</p>
+          </div>
+          <div style="width:48px;height:48px;background:#1a1a2e;border-radius:var(--radius-md);flex-shrink:0;"></div>
+        </div>
+
+        <!-- Activity 2 -->
+        <div style="display:flex;gap:14px;padding:18px 0;border-bottom:1px solid var(--border-default);">
+          <div style="position:relative;">
+            <div class="avatar" style="background:#2e1a1a;">D</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--state-info);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface-page);">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">
+              <strong style="color:var(--text-primary);">dj_beats</strong> commented on your post: "Best night of the summer!"
+            </p>
+            <p style="font-size:12px;color:var(--text-tertiary);">15 min ago</p>
+          </div>
+        </div>
+
+        <!-- Activity 3 -->
+        <div style="display:flex;gap:14px;padding:18px 0;border-bottom:1px solid var(--border-default);">
+          <div style="position:relative;">
+            <div class="avatar" style="background:#1a2e1a;">M</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--state-success);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface-page);">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14" stroke="white" stroke-width="2"/><line x1="23" y1="11" x2="17" y2="11" stroke="white" stroke-width="2"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">
+              <strong style="color:var(--text-primary);">maria_live</strong> started following you
+            </p>
+            <p style="font-size:12px;color:var(--text-tertiary);">1 hour ago</p>
+          </div>
+          <button style="padding:14px 24px;background:transparent;border:1.5px solid var(--border-strong);border-radius:var(--radius-md);font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-secondary);cursor:pointer;align-self:center;">Follow</button>
+        </div>
+
+        <!-- Activity 4 -->
+        <div style="display:flex;gap:14px;padding:18px 0;border-bottom:1px solid var(--border-default);">
+          <div style="position:relative;">
+            <div class="avatar" style="background:var(--surface-elevated);">T</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--color-primary);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface-page);">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="white" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="white" stroke-width="2"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">
+              <strong style="color:var(--text-primary);">Tech Meetup</strong> event is happening in 2 days. Do not forget your ticket!
+            </p>
+            <p style="font-size:12px;color:var(--text-tertiary);">3 hours ago</p>
+          </div>
+          <div style="width:48px;height:48px;background:var(--surface-elevated);border-radius:var(--radius-md);flex-shrink:0;border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
+
+        <!-- Activity 5 -->
+        <div style="display:flex;gap:14px;padding:18px 0;border-bottom:1px solid var(--border-default);">
+          <div style="position:relative;">
+            <div class="avatar" style="background:#2e2e1a;">A</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--color-primary);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface-page);">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">
+              <strong style="color:var(--text-primary);">alex_photography</strong> uploaded 15 new photos to <strong style="color:var(--text-primary);">Summer Music Festival</strong>
+            </p>
+            <p style="font-size:12px;color:var(--text-tertiary);">5 hours ago</p>
+          </div>
+          <div style="width:48px;height:48px;background:#1a1a2e;border-radius:var(--radius-md);flex-shrink:0;"></div>
+        </div>
+
+        <!-- Activity 6 -->
+        <div style="display:flex;gap:14px;padding:18px 0;">
+          <div style="position:relative;">
+            <div class="avatar" style="background:#2e1a2e;">R</div>
+            <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;background:var(--state-success);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:2px solid var(--surface-page);">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01" stroke="white" stroke-width="2" fill="none"/></svg>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;margin-bottom:4px;">
+              <strong style="color:var(--text-primary);">rhythm_king</strong> confirmed attendance at <strong style="color:var(--text-primary);">Tech Meetup</strong>
+            </p>
+            <p style="font-size:12px;color:var(--text-tertiary);">Yesterday</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="home-indicator"><div class="bar"></div></div>
+  </div>
+</div>
+
+<!-- Screen switcher script -->
+<script>
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>

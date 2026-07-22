@@ -1,0 +1,1968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430, initial-scale=1">
+<title>M4Event — Create Event & Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-primary: #E61919;
+  --color-on-primary: #0B0B0B;
+  --color-accent: #ECECEA;
+  --surface-page: #0B0B0B;
+  --surface-card: #131312;
+  --surface-elevated: #1A1A19;
+  --surface-sunken: #050505;
+  --text-primary: #ECECEA;
+  --text-secondary: #9F9F9C;
+  --text-tertiary: #6A6A67;
+  --text-disabled: #3A3A36;
+  --border-default: #2A2A27;
+  --border-strong: #3A3A36;
+  --border-focus: #E61919;
+  --action-primary: #E61919;
+  --action-primary-hover: #FF2A2A;
+  --action-secondary: #1A1A19;
+  --action-secondary-hover: #2A2A27;
+  --state-success: #4AF626;
+  --state-success-bg: rgba(74,246,38,0.12);
+  --state-warning: #E0A819;
+  --state-warning-bg: rgba(224,168,25,0.12);
+  --state-danger: #E61919;
+  --state-danger-bg: rgba(230,25,25,0.12);
+  --state-info: #4AF626;
+  --state-info-bg: rgba(74,246,38,0.12);
+  --font-display: 'Archivo Black', 'Inter', sans-serif;
+  --font-body: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-full: 0;
+    --status-bar-height: 54px;
+    --home-indicator-height: 34px;
+    --container: 1120px;
+    --gutter: 32px;
+  }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--surface-page);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  min-height: 100vh;
+
+  overflow-x: hidden;}
+
+.screen-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface-page);
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 24px;
+}
+.screen-nav button {
+  background: var(--surface-card); color: var(--text-tertiary);
+  border: 1px solid var(--border-default); border-radius: 0;
+  padding: 6px 10px; font-size: 11px; font-family: var(--font-mono);
+  cursor: pointer; transition: all 0.15s; letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.screen-nav button:hover,
+.screen-nav button.active {
+  background: var(--color-primary); color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+.screen-label-old {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.phone-frame {
+  width: 390px;
+  min-height: 844px;
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
+  border-radius: 40px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 48px;
+  box-shadow: 0 0 0 1px var(--border-default), 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.status-bar {
+  height: var(--status-bar-height);
+  background: var(--surface-page);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  position: relative;
+}
+.status-bar .time { font-weight: 600; }
+.status-bar .icons { display: flex; gap: 6px; align-items: center; }
+.status-bar .icons svg { width: 16px; height: 16px; fill: var(--text-primary); }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+.screen-content {
+  padding: 0 24px 24px;
+  min-height: 640px;
+}
+
+.home-indicator {
+  height: var(--home-indicator-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-indicator div {
+  width: 134px;
+  height: 4px;
+  background: var(--text-tertiary);
+  border-radius: 0;
+}
+
+/* Common components */
+.label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+h1 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+      padding: 14px 24px;
+  background: var(--action-primary);
+  color: var(--color-on-primary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+      padding: 14px 24px;
+  background: var(--action-secondary);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+      padding: 14px 24px;
+  background: transparent;
+  color: var(--color-primary);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.btn-sm {
+      padding: 6px 16px;
+  font-size: 10px;
+}
+.btn-full { width: 100%; }
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+.card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 20px;
+}
+
+.input-group { margin-bottom: 20px; }
+.input-group label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 8px;
+}
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+}
+.input-field::placeholder { color: var(--text-disabled); }
+.input-field:focus { border-color: var(--border-focus); }
+
+.textarea-field {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+  resize: none;
+  min-height: 100px;
+}
+.textarea-field::placeholder { color: var(--text-disabled); }
+.textarea-field:focus { border-color: var(--border-focus); }
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-default);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-track {
+  width: 44px;
+  height: 24px;
+  background: var(--color-primary);
+  border-radius: 12px;
+  position: relative;
+}
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+}
+.toggle-track.off {
+  background: var(--border-default);
+}
+.toggle-track.off::after {
+  right: auto;
+  left: 3px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.badge-success { background: var(--state-success-bg); color: var(--state-success); }
+.badge-warning { background: var(--state-warning-bg); color: var(--state-warning); }
+.badge-danger { background: var(--state-danger-bg); color: var(--state-danger); }
+.badge-info { background: var(--state-info-bg); color: var(--state-info); }
+.badge-neutral { background: var(--surface-elevated); color: var(--text-secondary); }
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px 0;
+}
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+}
+.step-dot.completed {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.step-dot.current {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm);
+}
+.step-dot.upcoming {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+}
+.step-line {
+  width: 32px;
+  height: 2px;
+}
+.step-line.filled { background: var(--color-primary); }
+.step-line.empty { background: var(--border-default); }
+
+.phantom-header {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 24px;
+}
+.phantom-header .back-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.phantom-header .back-row svg {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text-primary);
+  fill: none;
+}
+
+/* Bottom nav */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 28px;
+}
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+.bottom-nav-item svg {
+  width: 22px;
+  height: 22px;
+  stroke: var(--text-tertiary);
+  fill: none;
+}
+.bottom-nav-item span {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.04em;
+}
+.bottom-nav-item.active svg { stroke: var(--color-primary); }
+.bottom-nav-item.active span { color: var(--color-primary); }
+
+.chart-bar {
+  background: var(--color-primary);
+  border-radius: 2px 2px 0 0;
+  min-height: 8px;
+}
+
+/* ===== BRUTALIST TASTE — full override ===== */
+
+/* CRT scanlines overlay */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.18) 2px 3px);
+  mix-blend-mode: multiply; opacity: 0.55;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
+}
+
+/* Base reset */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--surface-page) !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum";
+  line-height: 1.55;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
+}
+
+/* Cards — no radius, no shadow, flat */
+.card, .event-card, .stat-box, .meta-item {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Buttons — flat, mono, uppercase */
+.btn-primary, button.btn-primary, a.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--action-primary) !important;
+  color: #0B0B0B !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+}
+.btn-primary:hover {
+  background: var(--action-primary-hover) !important;
+}
+
+.btn-secondary, button.btn-secondary, a.btn-secondary, .btn-outline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 9px 19px !important;
+  cursor: pointer !important;
+}
+.btn-secondary:hover {
+  border-color: var(--text-primary) !important;
+}
+
+/* Badges and tags — no radius */
+.badge, .tag {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 4px 10px !important;
+}
+.badge-primary {
+  background: var(--color-primary) !important;
+  color: #0B0B0B !important;
+}
+
+/* Inputs — flat, mono */
+input, textarea, select, .input-field, .search-bar input {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  border: 1px solid var(--border-default) !important;
+  background: #050505 !important;
+  color: var(--text-primary) !important;
+  padding: 10px 14px !important;
+}
+input:focus, textarea:focus, .input-field:focus {
+  border-color: var(--color-primary) !important;
+  outline: none !important;
+}
+
+/* Avatars — no radius */
+.avatar {
+  border-radius: 0 !important;
+}
+
+/* Dividers */
+.divider {
+  border-color: var(--border-default) !important;
+}
+
+/* Screen containers */
+.phone, .phone-frame, .iphone-frame {
+  width: 390px !important;
+  border-radius: 0 !important;
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-page) !important;
+  box-shadow: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* Status bar — match brutalist topbar */
+.status-bar {
+  border-bottom: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-secondary) !important;
+}
+.status-bar .time {
+  color: var(--text-primary) !important;
+}
+
+/* Home indicator */
+.home-indicator .bar, .home-indicator > div {
+  background: var(--border-strong) !important;
+  border-radius: 0 !important;
+}
+
+/* Navigation items */
+.nav-item {
+  border-radius: 0 !important;
+}
+.nav-item.active, .nav-item:hover {
+  background: var(--surface-elevated) !important;
+}
+
+/* Toggle switches */
+.toggle {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.toggle.active {
+  background: var(--color-primary) !important;
+}
+
+/* Steps indicator */
+.step-dot {
+  border-radius: 0 !important;
+}
+.step-dot.active {
+  background: var(--color-primary) !important;
+}
+.step-line {
+  background: var(--border-default) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.progress-fill {
+  border-radius: 0 !important;
+  background: var(--color-primary) !important;
+}
+
+/* Tables and grids */
+.grid-2, .grid-3, .grid-4 {
+  gap: 1px !important;
+}
+.phone-frame .grid-2 > *, .phone-frame .grid-3 > *, .phone-frame .grid-4 > * {
+  background: var(--surface-card) !important;
+  border: none !important;
+}
+
+/* Icons in circles */
+.icon-circle, .icon-circle-sm {
+  border-radius: 0 !important;
+  background: var(--surface-elevated) !important;
+}
+
+/* Typography overrides */
+.caption {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+.body-sm, .body-text, p {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: var(--text-secondary) !important;
+}
+.section-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  color: var(--color-primary) !important;
+}
+
+/* Empty states */
+.empty-state {
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+}
+.empty-icon {
+  border-radius: 0 !important;
+}
+.empty-title {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text-primary) !important;
+}
+
+/* Filter options */
+.filter-option {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+}
+.filter-option:hover {
+  border-color: var(--color-primary) !important;
+}
+
+/* Event cards */
+.card-image {
+  border-radius: 0 !important;
+}
+
+/* Notification badges */
+.notif-dot, .notif-count {
+  border-radius: 0 !important;
+}
+
+/* Checkbox / radio style */
+input[type="radio"], input[type="checkbox"] {
+  border-radius: 0 !important;
+}
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  background: var(--color-primary) !important;
+}
+
+/* Bottom nav */
+.bottom-nav-item {
+  border-radius: 0 !important;
+}
+.bottom-nav-item.active {
+  border-top-color: var(--color-primary) !important;
+}
+
+/* All border-radius zero-out */
+[style*="border-radius"] {
+  border-radius: 0 !important;
+}
+
+/* Chat/message bubbles */
+.message-bubble {
+  border-radius: 0 !important;
+}
+
+/* Stats */
+.stat-value {
+  font-family: var(--font-display) !important;
+  font-size: 32px !important;
+  letter-spacing: -0.03em !important;
+  color: var(--text-primary) !important;
+}
+.stat-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-page); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+</style>
+</head>
+<body>
+
+<!-- Screen nav -->
+<div class="screen-nav" id="screenNav"></div>
+
+<!-- ========== SCREEN 01: CREATE EVENT — STEP 1 ========== -->
+<div id="screen-create1" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <!-- Header -->
+    <div class="phantom-header">
+      <div class="back-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);">Create Event</span>
+      </div>
+      <!-- Stepper -->
+      <div class="step-indicator">
+        <div class="step-dot current">1</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">2</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">3</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">4</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">5</div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span class="caption" style="color:var(--color-primary);">Step 1 of 5 — Basic Information</span>
+      </div>
+    </div>
+
+    <!-- Cover Image -->
+    <div style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:8px;">Event Cover</label>
+      <div style="width:100%;height:160px;background:var(--surface-card);border:2px dashed var(--border-default);border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <span class="caption">Tap to upload cover image</span>
+        <span style="font-size:11px;color:var(--text-disabled);">JPG, PNG — 1920x1080 recommended</span>
+      </div>
+    </div>
+
+    <!-- Event Name -->
+    <div class="input-group">
+      <label>Event Name</label>
+      <input type="text" class="input-field" placeholder="e.g. Summer Music Festival 2026">
+    </div>
+
+    <!-- Description -->
+    <div class="input-group">
+      <label>Description</label>
+      <textarea class="textarea-field" placeholder="Tell people what your event is about..."></textarea>
+    </div>
+
+    <!-- Category -->
+    <div class="input-group">
+      <label>Category</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <span class="badge badge-info" style="padding:8px 14px;">Music</span>
+        <span class="badge badge-neutral" style="padding:8px 14px;">Tech</span>
+        <span class="badge badge-neutral" style="padding:8px 14px;">Art</span>
+        <span class="badge badge-neutral" style="padding:8px 14px;">Food</span>
+        <span class="badge badge-neutral" style="padding:8px 14px;">Sports</span>
+        <span class="badge badge-neutral" style="padding:8px 14px;">Business</span>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div class="input-group">
+      <label>Tags</label>
+      <input type="text" class="input-field" placeholder="Add tags separated by commas">
+    </div>
+
+    <button class="btn-primary btn-full" style="margin-top:8px;">Continue</button>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+<!-- ========== SCREEN 02: CREATE EVENT — STEP 2 ========== -->
+<div id="screen-create2" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div class="phantom-header">
+      <div class="back-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);">Create Event</span>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot current">2</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">3</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">4</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">5</div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span class="caption" style="color:var(--color-primary);">Step 2 of 5 — Date & Location</span>
+      </div>
+    </div>
+
+    <!-- Start Date -->
+    <div class="input-group">
+      <label>Start Date</label>
+      <input type="text" class="input-field" placeholder="Select date" value="Saturday, August 15, 2026">
+    </div>
+
+    <!-- Start Time -->
+    <div class="input-group">
+      <label>Start Time</label>
+      <input type="text" class="input-field" placeholder="Select time" value="7:00 PM">
+    </div>
+
+    <!-- End Date -->
+    <div class="input-group">
+      <label>End Date</label>
+      <input type="text" class="input-field" placeholder="Select date" value="Sunday, August 16, 2026">
+    </div>
+
+    <!-- End Time -->
+    <div class="input-group">
+      <label>End Time</label>
+      <input type="text" class="input-field" placeholder="Select time" value="2:00 AM">
+    </div>
+
+    <!-- Timezone -->
+    <div class="input-group">
+      <label>Timezone</label>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);">
+        <span style="font-size:15px;color:var(--text-primary);">UTC+03 (East Africa Time)</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="input-group">
+      <label>Location</label>
+      <input type="text" class="input-field" placeholder="Search for a venue or address" value="Antananarivo, Madagascar">
+    </div>
+
+    <!-- Venue Name -->
+    <div class="input-group">
+      <label>Venue Name (optional)</label>
+      <input type="text" class="input-field" placeholder="e.g. Convention Center" value="CINAM — Indian Ocean Convention Center">
+    </div>
+
+    <!-- Map placeholder -->
+    <div style="width:100%;height:120px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      <span class="caption">Map preview</span>
+    </div>
+
+    <button class="btn-primary btn-full">Continue</button>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+<!-- ========== SCREEN 03: CREATE EVENT — STEP 3 ========== -->
+<div id="screen-create3" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div class="phantom-header">
+      <div class="back-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);">Create Event</span>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot current">3</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">4</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">5</div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span class="caption" style="color:var(--color-primary);">Step 3 of 5 — Ticketing & Visibility</span>
+      </div>
+    </div>
+
+    <!-- Visibility -->
+    <div style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:12px;">Visibility</label>
+      <div class="card" style="margin-bottom:8px;border-color:var(--color-primary);">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--color-primary);display:flex;align-items:center;justify-content:center;">
+            <div style="width:10px;height:10px;background:var(--color-primary);border-radius:50%;"></div>
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">Public Event</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Visible to everyone, listed in discover</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border-default);"></div>
+          <div>
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">Private Event</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Invite only, hidden from search</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pricing -->
+    <div style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:12px;">Pricing</label>
+      <div class="card" style="margin-bottom:8px;">
+        <div class="toggle-row" style="border:none;padding:0;">
+          <div>
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">Free Event</div>
+            <div style="font-size:13px;color:var(--text-secondary);">No ticket required</div>
+          </div>
+          <div class="toggle-track"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticket Price (shown when paid) -->
+    <div class="card" style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:8px;">Ticket Price</label>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--color-primary);">$</span>
+        <input type="text" class="input-field" value="25.00" style="font-family:var(--font-display);font-size:24px;font-weight:700;">
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <span class="badge badge-neutral" style="padding:6px 12px;cursor:pointer;">$10</span>
+        <span class="badge badge-neutral" style="padding:6px 12px;cursor:pointer;">$25</span>
+        <span class="badge badge-neutral" style="padding:6px 12px;cursor:pointer;">$50</span>
+        <span class="badge badge-neutral" style="padding:6px 12px;cursor:pointer;">$100</span>
+      </div>
+    </div>
+
+    <!-- Ticket Capacity -->
+    <div class="input-group">
+      <label>Ticket Capacity</label>
+      <input type="text" class="input-field" placeholder="Maximum number of tickets" value="500">
+    </div>
+
+    <!-- Invitation Only -->
+    <div class="card" style="margin-bottom:24px;">
+      <div class="toggle-row" style="border:none;padding:0;">
+        <div>
+          <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">Invitation Only</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Require approval to join</div>
+        </div>
+        <div class="toggle-track off"></div>
+      </div>
+    </div>
+
+    <button class="btn-primary btn-full">Continue</button>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+
+<!-- ========== SCREEN 04: CREATE EVENT — STEP 4 ========== -->
+<div id="screen-create4" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div class="phantom-header">
+      <div class="back-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);">Create Event</span>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot current">4</div>
+        <div class="step-line empty"></div>
+        <div class="step-dot upcoming">5</div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span class="caption" style="color:var(--color-primary);">Step 4 of 5 — Partners</span>
+      </div>
+    </div>
+
+    <!-- Added partners -->
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <label class="label">Added Partners</label>
+        <button class="btn-sm btn-outline" style="padding:6px 12px;font-size:10px;">+ Add</button>
+      </div>
+
+      <!-- Partner 1 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:44px;height:44px;background:var(--surface-elevated);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">Radisson Blu Hotel</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Venue Partner</div>
+          </div>
+          <span class="badge badge-success">Confirmed</span>
+        </div>
+      </div>
+
+      <!-- Partner 2 -->
+      <div class="card" style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:44px;height:44px;background:var(--surface-elevated);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">THB Ice Cream</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Food & Beverage</div>
+          </div>
+          <span class="badge badge-warning">Pending</span>
+        </div>
+      </div>
+
+      <!-- Partner 3 -->
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="width:44px;height:44px;background:var(--surface-elevated);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);margin-bottom:2px;">JIRAMA</div>
+            <div style="font-size:13px;color:var(--text-secondary);">Energy & Power</div>
+          </div>
+          <span class="badge badge-success">Confirmed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Platform Assistance -->
+    <div style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:12px;">Need Help Finding Partners?</label>
+      <div class="card-elevated" style="text-align:center;padding:20px;">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" style="margin-bottom:12px;">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">Request Platform Assistance</div>
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;">Our team will connect you with relevant sponsors and partners for your event</div>
+        <button class="btn-outline btn-sm">Request Assistance</button>
+      </div>
+    </div>
+
+    <button class="btn-primary btn-full">Continue</button>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+<!-- ========== SCREEN 05: CREATE EVENT — STEP 5 (PREVIEW) ========== -->
+<div id="screen-create5" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div class="phantom-header">
+      <div class="back-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        <span style="font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--text-primary);">Preview Event</span>
+      </div>
+      <div class="step-indicator">
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot completed">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-dot current">5</div>
+      </div>
+      <div style="text-align:center;margin-top:8px;">
+        <span class="caption" style="color:var(--color-primary);">Step 5 of 5 — Preview & Publish</span>
+      </div>
+    </div>
+
+    <!-- Cover Image -->
+    <div style="width:100%;height:180px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px;display:flex;align-items:center;justify-content:center;">
+      <div style="text-align:center;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1" style="margin-bottom:8px;">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <path d="M21 15l-5-5L5 21"/>
+        </svg>
+        <div style="font-size:13px;color:var(--text-tertiary);">Event Cover Image</div>
+      </div>
+    </div>
+
+    <!-- Event Title -->
+    <h3 style="margin-bottom:6px;">Summer Music Festival 2026</h3>
+    <div class="caption" style="color:var(--color-primary);margin-bottom:20px;">Music — Public — Paid</div>
+
+    <!-- Date & Time -->
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-primary);">Sat, Aug 15 — Sun, Aug 16, 2026</div>
+          <div style="font-size:13px;color:var(--text-secondary);">7:00 PM — 2:00 AM (EAT)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text-primary);">CINAM — Indian Ocean Convention Center</div>
+          <div style="font-size:13px;color:var(--text-secondary);">Antananarivo, Madagascar</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Price & Capacity -->
+    <div style="display:flex;gap:12px;margin-bottom:20px;">
+      <div class="card" style="flex:1;text-align:center;">
+        <div class="caption" style="margin-bottom:6px;">Price</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--color-primary);">$25.00</div>
+      </div>
+      <div class="card" style="flex:1;text-align:center;">
+        <div class="caption" style="margin-bottom:6px;">Capacity</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text-primary);">500</div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:8px;">Description</label>
+      <p style="font-size:15px;color:var(--text-secondary);line-height:1.6;">Experience the ultimate summer celebration featuring live performances from top artists across Madagascar and the Indian Ocean region. Food, drinks, and unforgettable memories await.</p>
+    </div>
+
+    <!-- Partners -->
+    <div style="margin-bottom:24px;">
+      <label class="label" style="display:block;margin-bottom:12px;">Partners (3)</label>
+      <div style="display:flex;gap:8px;">
+        <span class="badge badge-success">Radisson Blu</span>
+        <span class="badge badge-warning">THB</span>
+        <span class="badge badge-success">JIRAMA</span>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="card" style="margin-bottom:24px;border-color:var(--color-primary);">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--color-primary);">Ready to Publish</span>
+      </div>
+      <p style="font-size:13px;color:var(--text-secondary);line-height:1.5;">Your event will be visible to everyone after publishing. You can edit details anytime from your dashboard.</p>
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button class="btn-secondary" style="flex:1;">Save Draft</button>
+      <button class="btn-primary" style="flex:2;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/></svg>
+        Publish Event
+      </button>
+    </div>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+<!-- ========== SCREEN 06: MY EVENTS ========== -->
+<div id="screen-myevents" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <!-- Header -->
+    <div style="padding:20px 0;border-bottom:1px solid var(--border-default);margin-bottom:20px;">
+      <h2 style="margin-bottom:4px;">My Events</h2>
+      <span style="font-size:15px;color:var(--text-secondary);">Manage your created events</span>
+    </div>
+
+    <!-- Tabs -->
+    <div style="display:flex;gap:0;margin-bottom:24px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;">
+      <div style="flex:1;text-align:center;padding:12px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:var(--color-primary);color:var(--color-on-primary);">Upcoming (3)</div>
+      <div style="flex:1;text-align:center;padding:12px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);">Drafts (2)</div>
+      <div style="flex:1;text-align:center;padding:12px;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);">Past (5)</div>
+    </div>
+
+    <!-- Event Card 1 -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;gap:14px;">
+        <div style="width:72px;height:72px;background:var(--surface-elevated);border-radius:var(--radius-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);">Summer Music Festival</div>
+            <span class="badge badge-success" style="font-size:9px;">Live</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">Aug 15, 2026 — 7:00 PM</div>
+          <div style="display:flex;gap:16px;">
+            <span style="font-size:12px;color:var(--text-tertiary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              342
+            </span>
+            <span style="font-size:12px;color:var(--text-tertiary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              $8,550
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Card 2 -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;gap:14px;">
+        <div style="width:72px;height:72px;background:var(--surface-elevated);border-radius:var(--radius-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);">Tech Meetup Tana</div>
+            <span class="badge badge-success" style="font-size:9px;">Live</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">Sep 5, 2026 — 2:00 PM</div>
+          <div style="display:flex;gap:16px;">
+            <span style="font-size:12px;color:var(--text-tertiary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              89
+            </span>
+            <span style="font-size:12px;color:var(--text-tertiary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              Free
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Card 3 -->
+    <div class="card" style="margin-bottom:16px;">
+      <div style="display:flex;gap:14px;">
+        <div style="width:72px;height:72px;background:var(--surface-elevated);border-radius:var(--radius-md);flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div style="font-weight:600;font-size:15px;color:var(--text-primary);">Startup Pitch Night</div>
+            <span class="badge badge-info" style="font-size:9px;">Draft</span>
+          </div>
+          <div style="font-size:13px;color:var(--text-secondary);margin-bottom:6px;">Oct 20, 2026 — 6:00 PM</div>
+          <div style="display:flex;gap:16px;">
+            <span style="font-size:12px;color:var(--text-tertiary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              0
+            </span>
+            <span style="font-size:12px;color:var(--text-tertiary);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:4px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              $15.00
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create new -->
+    <button class="btn-primary btn-full" style="margin-top:8px;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create New Event
+    </button>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="bottom-nav-item active" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span>My Events</span>
+    </a>
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+<div class="home-indicator"><div></div></div>
+</div>
+
+</div>
+
+
+<!-- ========== SCREEN 07: DASHBOARD — OVERVIEW ========== -->
+<div id="screen-dashboard" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <!-- Header -->
+    <div style="padding:20px 0;border-bottom:1px solid var(--border-default);margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="caption" style="margin-bottom:4px;">Dashboard</div>
+          <h2>Summer Music Festival</h2>
+        </div>
+        <div style="width:40px;height:40px;background:var(--color-primary);border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+      <!-- Tickets Sold -->
+      <div class="card" style="text-align:center;">
+        <div class="caption" style="margin-bottom:8px;">Tickets Sold</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">342</div>
+        <div style="font-size:12px;color:var(--state-success);">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +12% this week
+        </div>
+      </div>
+      <!-- Revenue -->
+      <div class="card" style="text-align:center;">
+        <div class="caption" style="margin-bottom:8px;">Revenue</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--color-primary);margin-bottom:4px;">$8,550</div>
+        <div style="font-size:12px;color:var(--state-success);">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +8% this week
+        </div>
+      </div>
+      <!-- Participants -->
+      <div class="card" style="text-align:center;">
+        <div class="caption" style="margin-bottom:8px;">Participants</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">342</div>
+        <div style="font-size:12px;color:var(--text-tertiary);">of 500 capacity</div>
+      </div>
+      <!-- Partners -->
+      <div class="card" style="text-align:center;">
+        <div class="caption" style="margin-bottom:8px;">Partners</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">3</div>
+        <div style="font-size:12px;color:var(--state-success);">2 confirmed</div>
+      </div>
+    </div>
+
+    <!-- Ticket Sales Chart -->
+    <div style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <span class="label">Ticket Sales (7 Days)</span>
+        <span class="badge badge-neutral" style="font-size:9px;">This Week</span>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:12px;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:40%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Mon</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:65%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Tue</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:85%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Wed</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:55%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Thu</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:100%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Fri</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:75%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Sat</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;">
+            <div class="chart-bar" style="width:100%;height:45%;"></div>
+            <span style="font-size:10px;color:var(--text-tertiary);">Sun</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Capacity Progress -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Capacity</span>
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:15px;font-weight:600;color:var(--text-primary);">342 / 500 tickets</span>
+          <span style="font-size:14px;font-weight:700;color:var(--color-primary);">68%</span>
+        </div>
+        <div style="width:100%;height:8px;background:var(--surface-elevated);border-radius:4px;overflow:hidden;">
+          <div style="width:68%;height:100%;background:var(--color-primary);border-radius:4px;"></div>
+        </div>
+        <div style="font-size:13px;color:var(--text-tertiary);margin-top:8px;">158 tickets remaining</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Quick Actions</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="btn-outline btn-sm btn-full">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          View Attendees
+        </button>
+        <button class="btn-outline btn-sm btn-full">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Send Update
+        </button>
+        <button class="btn-outline btn-sm btn-full">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+          Manage Partners
+        </button>
+        <button class="btn-outline btn-sm btn-full">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Export Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="bottom-nav-item active" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      <span>My Events</span>
+    </a>
+    <a class="bottom-nav-item" href="#">
+      <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+
+<!-- ========== SCREEN 08: DASHBOARD — ANALYTICS ========== -->
+<div id="screen-analytics" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div style="padding:20px 0;border-bottom:1px solid var(--border-default);margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <h2>Analytics</h2>
+      </div>
+      <span style="font-size:15px;color:var(--text-secondary);">Summer Music Festival 2026</span>
+    </div>
+
+    <!-- Time Range Tabs -->
+    <div style="display:flex;gap:0;margin-bottom:24px;background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);overflow:hidden;">
+      <div style="flex:1;text-align:center;padding:10px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);">7D</div>
+      <div style="flex:1;text-align:center;padding:10px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;background:var(--color-primary);color:var(--color-on-primary);">30D</div>
+      <div style="flex:1;text-align:center;padding:10px;font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-tertiary);">All</div>
+    </div>
+
+    <!-- Tickets Sold Over Time -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Tickets Sold</span>
+      <div class="card">
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">342</div>
+        <div style="font-size:13px;color:var(--state-success);margin-bottom:16px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +28% vs last 30 days
+        </div>
+        <!-- Bar Chart -->
+        <div style="display:flex;align-items:flex-end;gap:4px;height:100px;">
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div class="chart-bar" style="width:100%;height:30%;"></div>
+            <span style="font-size:8px;color:var(--text-tertiary);">W1</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div class="chart-bar" style="width:100%;height:55%;"></div>
+            <span style="font-size:8px;color:var(--text-tertiary);">W2</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div class="chart-bar" style="width:100%;height:78%;"></div>
+            <span style="font-size:8px;color:var(--text-tertiary);">W3</span>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div class="chart-bar" style="width:100%;height:100%;"></div>
+            <span style="font-size:8px;color:var(--text-tertiary);">W4</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue Over Time -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Revenue</span>
+      <div class="card">
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--color-primary);margin-bottom:4px;">$8,550</div>
+        <div style="font-size:13px;color:var(--state-success);margin-bottom:16px;">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +28% vs last 30 days
+        </div>
+        <!-- Line Chart (simplified) -->
+        <div style="position:relative;height:80px;border-bottom:1px solid var(--border-default);margin-bottom:8px;">
+          <svg width="100%" height="80" viewBox="0 0 300 80" preserveAspectRatio="none" style="position:absolute;bottom:0;left:0;">
+            <polyline points="0,70 50,50 100,55 150,35 200,20 250,25 300,10" fill="none" stroke="#D40000" stroke-width="2"/>
+            <polyline points="0,70 50,50 100,55 150,35 200,20 250,25 300,10 300,80 0,80" fill="rgba(212,0,0,0.08)"/>
+          </svg>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="font-size:10px;color:var(--text-tertiary);">Jul 1</span>
+          <span style="font-size:10px;color:var(--text-tertiary);">Jul 30</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engagement Metrics -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Engagement</span>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <span style="font-size:15px;color:var(--text-secondary);">Event Views</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--text-primary);">2,847</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <span style="font-size:15px;color:var(--text-secondary);">Unique Visitors</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--text-primary);">1,423</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <span style="font-size:15px;color:var(--text-secondary);">Conversion Rate</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--color-primary);">24%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;">
+          <span style="font-size:15px;color:var(--text-secondary);">Avg. Ticket Price</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--text-primary);">$25.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+
+<!-- ========== SCREEN 09: DASHBOARD — REVENUE ========== -->
+<div id="screen-revenue" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div style="padding:20px 0;border-bottom:1px solid var(--border-default);margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <h2>Revenue</h2>
+      </div>
+      <span style="font-size:15px;color:var(--text-secondary);">Summer Music Festival 2026</span>
+    </div>
+
+    <!-- Total Revenue -->
+    <div class="card" style="margin-bottom:24px;text-align:center;border-color:var(--color-primary);">
+      <div class="caption" style="margin-bottom:8px;">Total Revenue</div>
+      <div style="font-family:var(--font-display);font-size:36px;font-weight:700;color:var(--color-primary);margin-bottom:4px;">$8,550.00</div>
+      <div style="font-size:13px;color:var(--state-success);">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:2px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+        +$2,400 this week
+      </div>
+    </div>
+
+    <!-- Revenue Breakdown -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Breakdown</span>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <span style="font-size:15px;color:var(--text-secondary);">Regular Tickets (280)</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--text-primary);">$7,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <span style="font-size:15px;color:var(--text-secondary);">VIP Tickets (42)</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--text-primary);">$1,260</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <span style="font-size:15px;color:var(--text-secondary);">Early Bird (20)</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--text-primary);">$290</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:14px 0;">
+          <span style="font-size:15px;color:var(--text-secondary);">Partner Sponsorships</span>
+          <span style="font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--color-primary);">$3,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Revenue by Date -->
+    <div style="margin-bottom:24px;">
+      <span class="label" style="display:block;margin-bottom:12px;">Recent Transactions</span>
+
+      <div class="card" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:var(--surface-elevated);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--text-secondary);">HA</span>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Hery A.</div>
+              <div style="font-size:12px;color:var(--text-tertiary);">VIP Ticket — 2h ago</div>
+            </div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--state-success);">+$30</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:var(--surface-elevated);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--text-secondary);">MR</span>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Mija R.</div>
+              <div style="font-size:12px;color:var(--text-tertiary);">Regular Ticket — 5h ago</div>
+            </div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--state-success);">+$25</span>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:var(--surface-elevated);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--text-secondary);">TN</span>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Toa N.</div>
+              <div style="font-size:12px;color:var(--text-tertiary);">Regular Ticket — 1d ago</div>
+            </div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--state-success);">+$25</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:36px;height:36px;background:var(--surface-elevated);border-radius:var(--radius-full);display:flex;align-items:center;justify-content:center;border:1px solid var(--border-default);">
+              <span style="font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--text-secondary);">JB</span>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:600;color:var(--text-primary);">Jao B.</div>
+              <div style="font-size:12px;color:var(--text-tertiary);">VIP Ticket — 2d ago</div>
+            </div>
+          </div>
+          <span style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--state-success);">+$30</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-outline btn-full">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export Revenue Report
+    </button>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+<!-- ========== SCREEN 10: DASHBOARD — RECENT ACTIVITY ========== -->
+<div id="screen-activity" class="screen">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+  <div class="screen-content">
+    <div style="padding:20px 0;border-bottom:1px solid var(--border-default);margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <h2>Recent Activity</h2>
+      </div>
+      <span style="font-size:15px;color:var(--text-secondary);">Summer Music Festival 2026</span>
+    </div>
+
+    <!-- Timeline -->
+    <div style="position:relative;padding-left:24px;">
+      <!-- Timeline line -->
+      <div style="position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:var(--border-default);"></div>
+
+      <!-- Activity 1 -->
+      <div style="position:relative;margin-bottom:28px;">
+        <div style="position:absolute;left:-20px;top:4px;width:12px;height:12px;background:var(--state-success);border-radius:var(--radius-full);border:2px solid var(--surface-page);"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--state-success)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--state-success);">New Ticket Sale</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;">Hery A. purchased a VIP ticket ($30)</p>
+          <span style="font-size:12px;color:var(--text-tertiary);margin-top:6px;display:block;">2 hours ago</span>
+        </div>
+      </div>
+
+      <!-- Activity 2 -->
+      <div style="position:relative;margin-bottom:28px;">
+        <div style="position:absolute;left:-20px;top:4px;width:12px;height:12px;background:var(--color-primary);border-radius:var(--radius-full);border:2px solid var(--surface-page);"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--color-primary);">New Registration</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;">Lalao M. registered for the event</p>
+          <span style="font-size:12px;color:var(--text-tertiary);margin-top:6px;display:block;">5 hours ago</span>
+        </div>
+      </div>
+
+      <!-- Activity 3 -->
+      <div style="position:relative;margin-bottom:28px;">
+        <div style="position:absolute;left:-20px;top:4px;width:12px;height:12px;background:var(--state-info);border-radius:var(--radius-full);border:2px solid var(--surface-page);"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--state-info)" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--state-info);">Photo Uploaded</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;">Fanja R. added a photo to the event wall</p>
+          <span style="font-size:12px;color:var(--text-tertiary);margin-top:6px;display:block;">8 hours ago</span>
+        </div>
+      </div>
+
+      <!-- Activity 4 -->
+      <div style="position:relative;margin-bottom:28px;">
+        <div style="position:absolute;left:-20px;top:4px;width:12px;height:12px;background:var(--state-warning);border-radius:var(--radius-full);border:2px solid var(--surface-page);"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--state-warning)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--state-warning);">Partner Request</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;">Coca-Cola Madagascar requested to become a partner</p>
+          <span style="font-size:12px;color:var(--text-tertiary);margin-top:6px;display:block;">1 day ago</span>
+        </div>
+      </div>
+
+      <!-- Activity 5 -->
+      <div style="position:relative;margin-bottom:28px;">
+        <div style="position:absolute;left:-20px;top:4px;width:12px;height:12px;background:var(--state-success);border-radius:var(--radius-full);border:2px solid var(--surface-page);"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--state-success)" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--state-success);">Payment Received</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;">THB Ice Cream sent $1,000 sponsorship payment</p>
+          <span style="font-size:12px;color:var(--text-tertiary);margin-top:6px;display:block;">2 days ago</span>
+        </div>
+      </div>
+
+      <!-- Activity 6 -->
+      <div style="position:relative;margin-bottom:28px;">
+        <div style="position:absolute;left:-20px;top:4px;width:12px;height:12px;background:var(--color-primary);border-radius:var(--radius-full);border:2px solid var(--surface-page);"></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--color-primary);">Bulk Purchase</span>
+          </div>
+          <p style="font-size:14px;color:var(--text-secondary);line-height:1.5;">University of Antananarivo bought 15 group tickets</p>
+          <span style="font-size:12px;color:var(--text-tertiary);margin-top:6px;display:block;">3 days ago</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="home-indicator"><div></div></div>
+</div>
+</div>
+
+
+<script>
+function buildNav() {
+  var ids = [];
+  document.querySelectorAll('.screen').forEach(function(s) {
+    if (s.id) ids.push(s.id.replace('screen-', ''));
+  });
+  var nav = document.getElementById('screenNav');
+  if (!nav) return;
+  ids.forEach(function(id) {
+    var btn = document.createElement('button');
+    btn.textContent = id.replace(/-/g, ' ');
+    btn.onclick = function() { showScreen(id); };
+    nav.appendChild(btn);
+  });
+  if (ids.length > 0) showScreen(ids[0]);
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  var target = document.getElementById('screen-' + id);
+  if (target) target.classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(function(b) {
+    b.classList.remove('active');
+    if (b.textContent.replace(/\s/g, '-') === id || b.textContent === id.replace(/-/g, ' ')) b.classList.add('active');
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+buildNav();
+</script>
+</body>
+</html>
+

@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=430, initial-scale=1">
+<title>M4Event — Discovery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --color-primary: #E61919;
+  --color-on-primary: #0B0B0B;
+  --color-accent: #ECECEA;
+  --surface-page: #0B0B0B;
+  --surface-card: #131312;
+  --surface-elevated: #1A1A19;
+  --surface-sunken: #050505;
+  --text-primary: #ECECEA;
+  --text-secondary: #9F9F9C;
+  --text-tertiary: #6A6A67;
+  --text-disabled: #3A3A36;
+  --border-default: #2A2A27;
+  --border-strong: #3A3A36;
+  --border-focus: #E61919;
+  --action-primary: #E61919;
+  --action-primary-hover: #FF2A2A;
+  --action-secondary: #1A1A19;
+  --action-secondary-hover: #2A2A27;
+  --state-success: #4AF626;
+  --state-success-bg: rgba(74,246,38,0.12);
+  --state-warning: #E0A819;
+  --state-warning-bg: rgba(224,168,25,0.12);
+  --state-danger: #E61919;
+  --state-danger-bg: rgba(230,25,25,0.12);
+  --state-info: #4AF626;
+  --state-info-bg: rgba(74,246,38,0.12);
+  --font-display: 'Archivo Black', 'Inter', sans-serif;
+  --font-body: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-full: 0;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--surface-page);
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  min-height: 100vh;
+}
+.screen-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface-page);
+  padding: 12px 16px;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-bottom: 1px solid var(--border-default);
+  margin-bottom: 24px;
+}
+.screen-nav button {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 150ms;
+}
+.screen-nav button:hover,
+.screen-nav button.active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+.iphone-frame {
+  width: 390px;
+  background: var(--surface-page);
+  border-radius: 44px;
+  border: 3px solid #333;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 0 1px #555, 0 20px 60px rgba(0,0,0,0.8);
+  margin-bottom: 48px;
+}
+.iphone-frame .status-bar {
+  height: var(--status-bar-height);
+  background: var(--surface-page);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  position: relative;
+}
+.iphone-frame .status-bar .dynamic-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 33px;
+  background: #000;
+  border-radius: 20px;
+}
+.iphone-frame .status-bar .time { z-index: 1; }
+.iphone-frame .status-bar .icons { display: flex; gap: 6px; align-items: center; z-index: 1; }
+.iphone-frame .status-bar .icons svg { width: 16px; height: 16px; fill: currentColor; }
+.iphone-frame .screen-content {
+  min-height: 700px;
+  padding: 0 24px 24px;
+  padding-bottom: 24px;
+}
+.iphone-frame .home-indicator {
+  height: var(--home-indicator-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.iphone-frame .home-indicator .bar {
+  width: 130px;
+  height: 5px;
+  background: #333;
+  border-radius: 3px;
+}
+.screen { display: none; }
+.screen.active { display: block; }
+.label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+.caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+.body-text {
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.small-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+}
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  background: var(--action-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: background 150ms;
+}
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.input-group { margin-bottom: 20px; }
+.input-group .input-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+}
+.input-group input::placeholder { color: var(--text-tertiary); }
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  margin-bottom: 24px;
+}
+.search-bar svg { width: 18px; height: 18px; color: var(--text-tertiary); flex-shrink: 0; }
+.search-bar input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  outline: none;
+}
+.search-bar input::placeholder { color: var(--text-tertiary); }
+.event-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.event-card .card-image {
+  width: 100%;
+  height: 160px;
+  background: var(--surface-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  position: relative;
+}
+.event-card .card-image .price-tag {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+}
+.event-card .card-body {
+  padding: 16px 20px 20px;
+}
+.event-card .card-body h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+.event-card .card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.event-card .card-meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.event-card .card-meta .meta-item svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-tertiary);
+}
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-card);
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0 8px;
+  z-index: 10;
+}
+.bottom-nav .nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  cursor: pointer;
+}
+.bottom-nav .nav-item.active { color: var(--color-primary); }
+.bottom-nav .nav-item svg { width: 22px; height: 22px; }
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.category-chip.active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+.tag-pill {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.section-header h2 {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+.filter-group { margin-bottom: 28px; }
+.filter-group .filter-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: block;
+}
+.filter-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-default);
+  font-size: 15px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.filter-option:last-child { border-bottom: none; }
+.filter-option svg { width: 18px; height: 18px; color: var(--text-tertiary); }
+.toggle {
+  width: 40px;
+  height: 22px;
+  background: var(--border-default);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+}
+.toggle.on { background: var(--color-primary); }
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: var(--radius-full);
+}
+.toggle.on::after { left: 20px; }
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+.empty-state .empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.empty-state .empty-icon svg { width: 36px; height: 36px; color: var(--text-tertiary); }
+.empty-state h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.empty-state p {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  max-width: 280px;
+}
+
+/* ===== BRUTALIST TASTE — full override ===== */
+
+/* CRT scanlines overlay */
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9999;
+  background: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.18) 2px 3px);
+  mix-blend-mode: multiply; opacity: 0.55;
+}
+body::after {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.45) 100%);
+}
+
+/* Base reset */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--surface-page) !important;
+  font-family: var(--font-body) !important;
+  font-size: 13px !important;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum";
+  line-height: 1.55;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  font-weight: 400 !important;
+}
+
+/* Cards — no radius, no shadow, flat */
+.card, .event-card, .stat-box, .meta-item {
+  background: var(--surface-card) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Buttons — flat, mono, uppercase */
+.btn-primary, button.btn-primary, a.btn-primary {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--action-primary) !important;
+  color: #0B0B0B !important;
+  border: none !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 10px 20px !important;
+  cursor: pointer !important;
+}
+.btn-primary:hover {
+  background: var(--action-primary-hover) !important;
+}
+
+.btn-secondary, button.btn-secondary, a.btn-secondary, .btn-outline {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-strong) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 9px 19px !important;
+  cursor: pointer !important;
+}
+.btn-secondary:hover {
+  border-color: var(--text-primary) !important;
+}
+
+/* Badges and tags — no radius */
+.badge, .tag {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  padding: 4px 10px !important;
+}
+.badge-primary {
+  background: var(--color-primary) !important;
+  color: #0B0B0B !important;
+}
+
+/* Inputs — flat, mono */
+input, textarea, select, .input-field, .search-bar input {
+  border-radius: 0 !important;
+  font-family: var(--font-mono) !important;
+  font-size: 13px !important;
+  border: 1px solid var(--border-default) !important;
+  background: #050505 !important;
+  color: var(--text-primary) !important;
+  padding: 10px 14px !important;
+}
+input:focus, textarea:focus, .input-field:focus {
+  border-color: var(--color-primary) !important;
+  outline: none !important;
+}
+
+/* Avatars — no radius */
+.avatar {
+  border-radius: 0 !important;
+}
+
+/* Dividers */
+.divider {
+  border-color: var(--border-default) !important;
+}
+
+/* Screen containers */
+.phone, .phone-frame, .iphone-frame {
+  border-radius: 0 !important;
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-page) !important;
+  box-shadow: none !important;
+}
+
+/* Status bar — match brutalist topbar */
+.status-bar {
+  border-bottom: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 10.5px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-secondary) !important;
+}
+.status-bar .time {
+  color: var(--text-primary) !important;
+}
+
+/* Home indicator */
+.home-indicator .bar, .home-indicator > div {
+  background: var(--border-strong) !important;
+  border-radius: 0 !important;
+}
+
+/* Navigation items */
+.nav-item {
+  border-radius: 0 !important;
+}
+.nav-item.active, .nav-item:hover {
+  background: var(--surface-elevated) !important;
+}
+
+/* Toggle switches */
+.toggle {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.toggle.active {
+  background: var(--color-primary) !important;
+}
+
+/* Steps indicator */
+.step-dot {
+  border-radius: 0 !important;
+}
+.step-dot.active {
+  background: var(--color-primary) !important;
+}
+.step-line {
+  background: var(--border-default) !important;
+}
+
+/* Progress bars */
+.progress-bar {
+  border-radius: 0 !important;
+  background: var(--border-default) !important;
+}
+.progress-fill {
+  border-radius: 0 !important;
+  background: var(--color-primary) !important;
+}
+
+/* Tables and grids */
+.grid-2, .grid-3, .grid-4 {
+  gap: 1px !important;
+}
+.phone-frame .grid-2 > *, .phone-frame .grid-3 > *, .phone-frame .grid-4 > * {
+  background: var(--surface-card) !important;
+  border: none !important;
+}
+
+/* Icons in circles */
+.icon-circle, .icon-circle-sm {
+  border-radius: 0 !important;
+  background: var(--surface-elevated) !important;
+}
+
+/* Typography overrides */
+.caption {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+.body-sm, .body-text, p {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: var(--text-secondary) !important;
+}
+.section-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.18em !important;
+  color: var(--color-primary) !important;
+}
+
+/* Empty states */
+.empty-state {
+  border: 1px solid var(--border-default) !important;
+  background: var(--surface-card) !important;
+}
+.empty-icon {
+  border-radius: 0 !important;
+}
+.empty-title {
+  font-family: var(--font-display) !important;
+  text-transform: uppercase !important;
+  letter-spacing: -0.02em !important;
+  color: var(--text-primary) !important;
+}
+
+/* Filter options */
+.filter-option {
+  border: 1px solid var(--border-default) !important;
+  border-radius: 0 !important;
+}
+.filter-option:hover {
+  border-color: var(--color-primary) !important;
+}
+
+/* Event cards */
+.card-image {
+  border-radius: 0 !important;
+}
+
+/* Notification badges */
+.notif-dot, .notif-count {
+  border-radius: 0 !important;
+}
+
+/* Checkbox / radio style */
+input[type="radio"], input[type="checkbox"] {
+  border-radius: 0 !important;
+}
+input[type="radio"]:checked,
+input[type="checkbox"]:checked {
+  background: var(--color-primary) !important;
+}
+
+/* Bottom nav */
+.bottom-nav-item {
+  border-radius: 0 !important;
+}
+.bottom-nav-item.active {
+  border-top-color: var(--color-primary) !important;
+}
+
+/* All border-radius zero-out */
+[style*="border-radius"] {
+  border-radius: 0 !important;
+}
+
+/* Chat/message bubbles */
+.message-bubble {
+  border-radius: 0 !important;
+}
+
+/* Stats */
+.stat-value {
+  font-family: var(--font-display) !important;
+  font-size: 32px !important;
+  letter-spacing: -0.03em !important;
+  color: var(--text-primary) !important;
+}
+.stat-label {
+  font-family: var(--font-mono) !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.12em !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--surface-page); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+</style>
+</head>
+<body>
+
+<nav class="screen-nav">
+  <button class="active" onclick="show('home')">Home</button>
+  <button onclick="show('search')">Search</button>
+  <button onclick="show('results')">Results</button>
+  <button onclick="show('categories')">Categories</button>
+  <button onclick="show('featured')">Featured</button>
+  <button onclick="show('nearby')">Nearby</button>
+  <button onclick="show('upcoming')">Upcoming</button>
+  <button onclick="show('recommendations')">Recs</button>
+  <button onclick="show('filters')">Filters</button>
+  <button onclick="show('empty-search')">Empty</button>
+  <button onclick="show('no-internet')">No Net</button>
+</nav>
+
+<!-- ==================== SCREEN: HOME ==================== -->
+<div class="screen active" id="home">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom: 80px;">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;margin-bottom:28px;">
+      <div>
+        <span class="caption" style="color:var(--text-tertiary);display:block;margin-bottom:4px;">Good evening</span>
+        <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Discover Events</h1>
+      </div>
+      <div class="avatar-sm">H</div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="Search events, venues, people...">
+    </div>
+
+    <!-- Categories -->
+    <div style="display:flex;gap:10px;overflow-x:auto;margin-bottom:28px;padding-bottom:4px;">
+      <span class="category-chip active">All</span>
+      <span class="category-chip">Music</span>
+      <span class="category-chip">Tech</span>
+      <span class="category-chip">Sports</span>
+      <span class="category-chip">Art</span>
+      <span class="category-chip">Food</span>
+    </div>
+
+    <!-- Featured -->
+    <div class="section-header">
+      <h2>Featured</h2>
+      <span class="btn-ghost">See all</span>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image">
+        <span>Phantom Music Festival</span>
+        <span class="price-tag">$45</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Music</span>
+        <h3>Phantom Music Festival 2026</h3>
+        <div class="card-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Jul 25, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Antananarivo
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            320 attending
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming -->
+    <div class="section-header" style="margin-top:8px;">
+      <h2>Upcoming</h2>
+      <span class="btn-ghost">See all</span>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Tech Meetup</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Technology</span>
+        <h3>42 Antananarivo — Tech Meetup</h3>
+        <div class="card-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 2, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            18:00
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Ivandry
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Startup Pitch Night</span>
+        <span class="price-tag">Free</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Business</span>
+        <h3>Startup Pitch Night — Antananarivo</h3>
+        <div class="card-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 8, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            19:00
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Analakely
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: SEARCH ==================== -->
+<div class="screen" id="search">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <div style="margin-top:8px;margin-bottom:28px;">
+      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Search</h1>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" placeholder="What events interest you?">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="cursor:pointer;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+
+    <!-- Recent Searches -->
+    <div style="margin-bottom:32px;">
+      <div class="section-header">
+        <span class="caption" style="color:var(--text-tertiary);">Recent</span>
+        <span class="btn-ghost" style="font-size:10px;">Clear all</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0;">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span style="font-size:15px;color:var(--text-primary);">music festival</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span style="font-size:15px;color:var(--text-primary);">tech meetup antananarivo</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border-default);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span style="font-size:15px;color:var(--text-primary);">startup pitch</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span style="font-size:15px;color:var(--text-primary);">photography workshop</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popular Tags -->
+    <div>
+      <div class="section-header">
+        <span class="caption" style="color:var(--text-tertiary);">Popular tags</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <span class="tag-pill"># Music</span>
+        <span class="tag-pill"># Technology</span>
+        <span class="tag-pill"># Food</span>
+        <span class="tag-pill"># Sports</span>
+        <span class="tag-pill"># Art</span>
+        <span class="tag-pill"># Business</span>
+        <span class="tag-pill"># Culture</span>
+        <span class="tag-pill"># Education</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: SEARCH RESULTS ==================== -->
+<div class="screen" id="results">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <!-- Search Bar with back -->
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;margin-bottom:24px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer;"><polyline points="15 18 9 12 15 6"/></svg>
+      <div class="search-bar" style="flex:1;margin-bottom:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" value="music festival" readonly>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <span class="body-text" style="font-size:14px;">8 results found</span>
+      <span class="btn-ghost" style="font-size:10px;display:flex;align-items:center;gap:4px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        Filters
+      </span>
+    </div>
+
+    <!-- Result 1 -->
+    <div class="event-card">
+      <div class="card-image">
+        <span>Phantom Music Festival</span>
+        <span class="price-tag">$45</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Music</span>
+        <h3>Phantom Music Festival 2026</h3>
+        <div class="card-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Jul 25, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Antananarivo
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            320 attending
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result 2 -->
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Acoustic Night</span>
+        <span class="price-tag">$15</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Music</span>
+        <h3>Acoustic Night at Café de la Gare</h3>
+        <div class="card-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 10, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            20:00
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Haute-Ville
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result 3 -->
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Jazz Evening</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Music</span>
+        <h3>Jazz Evening — Live at Sakamanga</h3>
+        <div class="card-meta">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 15, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            21:00
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Isoraka
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: CATEGORIES ==================== -->
+<div class="screen" id="categories">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <div style="margin-top:8px;margin-bottom:28px;">
+      <span class="caption" style="color:var(--text-tertiary);display:block;margin-bottom:4px;">Browse</span>
+      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Categories</h1>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <!-- Music -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Music</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">124 events</span>
+      </div>
+
+      <!-- Technology -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Technology</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">89 events</span>
+      </div>
+
+      <!-- Sports -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 000 20 14.5 14.5 0 000-20"/><path d="M2 12h20"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Sports</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">67 events</span>
+      </div>
+
+      <!-- Art & Culture -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Art & Culture</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">53 events</span>
+      </div>
+
+      <!-- Food & Drink -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Food & Drink</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">41 events</span>
+      </div>
+
+      <!-- Business -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Business</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">38 events</span>
+      </div>
+
+      <!-- Education -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Education</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">29 events</span>
+      </div>
+
+      <!-- Community -->
+      <div style="background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:20px 16px;box-shadow:var(--shadow-sm);cursor:pointer;">
+        <div style="width:40px;height:40px;border-radius:var(--radius-md);background:var(--surface-elevated);border:1px solid var(--border-default);display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:20px;height:20px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:4px;">Community</h3>
+        <span style="font-size:12px;color:var(--text-tertiary);">22 events</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: FEATURED EVENTS ==================== -->
+<div class="screen" id="featured">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;margin-bottom:28px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer;"><polyline points="15 18 9 12 15 6"/></svg>
+      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Featured Events</h1>
+    </div>
+
+    <!-- Hero Featured Card -->
+    <div class="event-card" style="margin-bottom:28px;">
+      <div class="card-image" style="height:200px;">
+        <span>Phantom Music Festival</span>
+        <span class="price-tag">$45</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Music · Festival</span>
+        <h3 style="font-size:20px;">Phantom Music Festival 2026</h3>
+        <p class="body-text" style="margin-top:8px;">Three days of live performances, art installations, and immersive experiences in the heart of Antananarivo.</p>
+        <div class="card-meta" style="margin-top:16px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Jul 25–27, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Antananarivo
+          </span>
+        </div>
+        <button class="btn-primary" style="width:100%;margin-top:20px;">Get Tickets</button>
+      </div>
+    </div>
+
+    <!-- Featured 2 -->
+    <div class="event-card">
+      <div class="card-image" style="height:140px;">
+        <span>Tech Summit Africa</span>
+        <span class="price-tag">Free</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Technology</span>
+        <h3>Tech Summit Africa 2026</h3>
+        <div class="card-meta" style="margin-top:12px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Sep 5, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Ivandry
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            1.2k interested
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured 3 -->
+    <div class="event-card" style="margin-top:20px;">
+      <div class="card-image" style="height:140px;">
+        <span>Food Festival</span>
+        <span class="price-tag">$10</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Food & Drink</span>
+        <h3>Antananarivo Food Festival</h3>
+        <div class="card-meta" style="margin-top:12px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 20, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Isoraka
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: NEARBY EVENTS ==================== -->
+<div class="screen" id="nearby">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;margin-bottom:8px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer;"><polyline points="15 18 9 12 15 6"/></svg>
+      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Nearby</h1>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:24px;padding-left:32px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" style="width:14px;height:14px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span style="font-size:13px;color:var(--color-primary);font-weight:600;">Antananarivo, Madagascar</span>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Startup Pitch Night</span>
+        <span class="price-tag">Free</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Business</span>
+        <h3>Startup Pitch Night</h3>
+        <div class="card-meta" style="margin-top:10px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 8
+          </span>
+          <span class="meta-item" style="color:var(--color-primary);font-weight:600;">1.2 km away</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Photography Walk</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Art & Culture</span>
+        <h3>Photography Walk — Haute-Ville</h3>
+        <div class="card-meta" style="margin-top:10px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 12
+          </span>
+          <span class="meta-item" style="color:var(--color-primary);font-weight:600;">2.8 km away</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:120px;">
+        <span>Coffee Tasting</span>
+        <span class="price-tag">$8</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Food & Drink</span>
+        <h3>Specialty Coffee Tasting</h3>
+        <div class="card-meta" style="margin-top:10px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 18
+          </span>
+          <span class="meta-item" style="color:var(--color-primary);font-weight:600;">3.5 km away</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: UPCOMING EVENTS ==================== -->
+<div class="screen" id="upcoming">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;margin-bottom:28px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer;"><polyline points="15 18 9 12 15 6"/></svg>
+      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Upcoming</h1>
+    </div>
+
+    <!-- This Week -->
+    <div class="section-header">
+      <span class="caption" style="color:var(--text-tertiary);">This week</span>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:100px;">
+        <span>42 Tech Meetup</span>
+      </div>
+      <div class="card-body" style="padding:14px 16px 16px;">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="text-align:center;min-width:44px;">
+            <span style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--color-primary);display:block;line-height:1;">02</span>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);">Aug</span>
+          </div>
+          <div style="flex:1;">
+            <span class="label" style="display:block;margin-bottom:4px;">Technology</span>
+            <h3 style="font-size:15px;">42 Antananarivo — Tech Meetup</h3>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                18:00
+              </span>
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Ivandry
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card" style="margin-top:14px;">
+      <div class="card-image" style="height:100px;">
+        <span>Startup Pitch Night</span>
+        <span class="price-tag">Free</span>
+      </div>
+      <div class="card-body" style="padding:14px 16px 16px;">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="text-align:center;min-width:44px;">
+            <span style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--color-primary);display:block;line-height:1;">08</span>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);">Aug</span>
+          </div>
+          <div style="flex:1;">
+            <span class="label" style="display:block;margin-bottom:4px;">Business</span>
+            <h3 style="font-size:15px;">Startup Pitch Night — Antananarivo</h3>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                19:00
+              </span>
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Analakely
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Week -->
+    <div class="section-header" style="margin-top:28px;">
+      <span class="caption" style="color:var(--text-tertiary);">Next week</span>
+    </div>
+
+    <div class="event-card">
+      <div class="card-image" style="height:100px;">
+        <span>Acoustic Night</span>
+        <span class="price-tag">$15</span>
+      </div>
+      <div class="card-body" style="padding:14px 16px 16px;">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="text-align:center;min-width:44px;">
+            <span style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--color-primary);display:block;line-height:1;">10</span>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);">Aug</span>
+          </div>
+          <div style="flex:1;">
+            <span class="label" style="display:block;margin-bottom:4px;">Music</span>
+            <h3 style="font-size:15px;">Acoustic Night at Café de la Gare</h3>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                20:00
+              </span>
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Haute-Ville
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="event-card" style="margin-top:14px;">
+      <div class="card-image" style="height:100px;">
+        <span>Photography Walk</span>
+      </div>
+      <div class="card-body" style="padding:14px 16px 16px;">
+        <div style="display:flex;gap:16px;align-items:flex-start;">
+          <div style="text-align:center;min-width:44px;">
+            <span style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--color-primary);display:block;line-height:1;">12</span>
+            <span style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-tertiary);">Aug</span>
+          </div>
+          <div style="flex:1;">
+            <span class="label" style="display:block;margin-bottom:4px;">Art & Culture</span>
+            <h3 style="font-size:15px;">Photography Walk — Haute-Ville</h3>
+            <div style="display:flex;gap:12px;margin-top:8px;">
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                15:00
+              </span>
+              <span style="font-size:12px;color:var(--text-tertiary);display:flex;align-items:center;gap:4px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Haute-Ville
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: RECOMMENDATIONS ==================== -->
+<div class="screen" id="recommendations">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content" style="padding-bottom:80px;">
+    <div style="margin-top:8px;margin-bottom:8px;">
+      <span class="caption" style="color:var(--text-tertiary);display:block;margin-bottom:4px;">For you</span>
+      <h1 style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--text-primary);line-height:1.1;">Recommendations</h1>
+    </div>
+    <p class="body-text" style="margin-bottom:28px;font-size:14px;">Based on your interests in Technology, Music and Business</p>
+
+    <!-- Rec 1 -->
+    <div class="event-card">
+      <div class="card-image" style="height:130px;">
+        <span>AI Workshop</span>
+        <span class="price-tag">$25</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Technology</span>
+        <h3>AI & Machine Learning Workshop</h3>
+        <p class="small-text" style="margin-top:6px;">Hands-on workshop covering neural networks, LLMs, and practical AI applications.</p>
+        <div class="card-meta" style="margin-top:12px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 22, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Ivandry
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rec 2 -->
+    <div class="event-card" style="margin-top:16px;">
+      <div class="card-image" style="height:130px;">
+        <span>Jazz Evening</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Music</span>
+        <h3>Jazz Evening — Live at Sakamanga</h3>
+        <p class="small-text" style="margin-top:6px;">An intimate evening of live jazz featuring local and international artists.</p>
+        <div class="card-meta" style="margin-top:12px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Aug 15, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Isoraka
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rec 3 -->
+    <div class="event-card" style="margin-top:16px;">
+      <div class="card-image" style="height:130px;">
+        <span>Design Sprint</span>
+        <span class="price-tag">$30</span>
+      </div>
+      <div class="card-body">
+        <span class="label" style="display:block;margin-bottom:6px;">Business · Design</span>
+        <h3>Design Sprint Masterclass</h3>
+        <p class="small-text" style="margin-top:6px;">Learn the Google Ventures design sprint framework in a one-day intensive.</p>
+        <div class="card-meta" style="margin-top:12px;">
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Sep 1, 2026
+          </span>
+          <span class="meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Analakely
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      <span>Home</span>
+    </a>
+    <a class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>Search</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Events</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      <span>Tickets</span>
+    </a>
+    <a class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span>Profile</span>
+    </a>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: FILTERS ==================== -->
+<div class="screen" id="filters">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;margin-bottom:28px;">
+      <h1 style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--text-primary);">Filters</h1>
+      <span class="btn-ghost" style="font-size:10px;">Reset all</span>
+    </div>
+
+    <!-- Category -->
+    <div class="filter-group">
+      <span class="filter-label">Category</span>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        <span class="category-chip active">All</span>
+        <span class="category-chip">Music</span>
+        <span class="category-chip">Technology</span>
+        <span class="category-chip">Sports</span>
+        <span class="category-chip">Art</span>
+        <span class="category-chip">Food</span>
+        <span class="category-chip">Business</span>
+      </div>
+    </div>
+
+    <!-- Price -->
+    <div class="filter-group">
+      <span class="filter-label">Price</span>
+      <div class="filter-option">
+        <span>Free events only</span>
+        <div class="toggle on"></div>
+      </div>
+      <div class="filter-option">
+        <span>Max price</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--color-primary);font-weight:600;font-size:15px;">$50</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date -->
+    <div class="filter-group">
+      <span class="filter-label">Date</span>
+      <div class="filter-option">
+        <span>This week</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <div class="filter-option">
+        <span>This month</span>
+        <div style="width:18px;height:18px;border-radius:var(--radius-full);border:2px solid var(--color-primary);display:flex;align-items:center;justify-content:center;">
+          <div style="width:10px;height:10px;border-radius:var(--radius-full);background:var(--color-primary);"></div>
+        </div>
+      </div>
+      <div class="filter-option">
+        <span>Custom range</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" stroke-width="2" style="width:16px;height:16px;"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- Distance -->
+    <div class="filter-group">
+      <span class="filter-label">Distance</span>
+      <div class="filter-option">
+        <span>Within 5 km</span>
+        <div style="width:18px;height:18px;border-radius:var(--radius-full);border:2px solid var(--color-primary);display:flex;align-items:center;justify-content:center;">
+          <div style="width:10px;height:10px;border-radius:var(--radius-full);background:var(--color-primary);"></div>
+        </div>
+      </div>
+      <div class="filter-option">
+        <span>Within 10 km</span>
+        <div style="width:18px;height:18px;border-radius:var(--radius-full);border:2px solid var(--border-strong);"></div>
+      </div>
+      <div class="filter-option">
+        <span>Anywhere</span>
+        <div style="width:18px;height:18px;border-radius:var(--radius-full);border:2px solid var(--border-strong);"></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" style="width:100%;margin-top:12px;">Apply Filters</button>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: EMPTY SEARCH ==================== -->
+<div class="screen" id="empty-search">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div style="display:flex;align-items:center;gap:12px;margin-top:8px;margin-bottom:24px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;cursor:pointer;"><polyline points="15 18 9 12 15 6"/></svg>
+      <div class="search-bar" style="flex:1;margin-bottom:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" value="underwater basket weaving" readonly>
+      </div>
+    </div>
+
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+      </div>
+      <h3>No results found</h3>
+      <p>We couldn't find any events matching your search. Try different keywords or browse categories.</p>
+      <button class="btn-primary" style="width:100%;margin-top:28px;">Browse Categories</button>
+      <button class="btn-secondary" style="width:100%;margin-top:12px;">Clear Search</button>
+    </div>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<!-- ==================== SCREEN: NO INTERNET ==================== -->
+<div class="screen" id="no-internet">
+<div class="iphone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="dynamic-island"></div>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.24 4.24 0 00-6 0zm-4-4l2 2a7.07 7.07 0 0110 0l2-2C15.68 9.68 8.32 9.68 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="screen-content">
+    <div class="empty-state" style="min-height:600px;">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <line x1="1" y1="1" x2="23" y2="23"/>
+          <path d="M16.72 11.06A10.94 10.94 0 0119 12.55"/>
+          <path d="M5 12.55a10.94 10.94 0 015.17-2.39"/>
+          <path d="M10.71 5.05A16 16 0 0122.56 9"/>
+          <path d="M1.42 9a15.91 15.91 0 014.7-2.88"/>
+          <path d="M8.53 16.11a6 6 0 016.95 0"/>
+          <line x1="12" y1="20" x2="12.01" y2="20"/>
+        </svg>
+      </div>
+      <h3>No connection</h3>
+      <p>Check your internet connection and try again. Events and updates require an active connection.</p>
+      <button class="btn-primary" style="width:100%;margin-top:28px;">Retry</button>
+      <button class="btn-secondary" style="width:100%;margin-top:12px;">View saved events</button>
+    </div>
+  </div>
+
+  <div class="home-indicator"><div class="bar"></div></div>
+</div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.screen-nav button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

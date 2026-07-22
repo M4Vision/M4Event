@@ -1,0 +1,11 @@
+{
+  "kind": "critique-panel",
+  "score": 4,
+  "axes": {
+    "clarity":      { "score": 5, "notes": "All 8 sections clearly labeled with eyebrows, headlines under 14 words, lead text under 56ch. Product purpose is immediately clear." },
+    "hierarchy":    { "score": 4, "notes": "Hero has one dominant focal point (display headline). Feature grid is clean. Phone mockups create visual rhythm. Minor: feature cards could benefit from slightly more vertical breathing room." },
+    "typography":   { "score": 5, "notes": "JetBrains Mono for all display/headings, Inter for body. UPPERCASE labels with 0.12em letter-spacing. Tabular numerics on stats. Fully consistent with Phantom Works spec." },
+    "motion":       { "score": 3, "notes": "Static mockup — no animations. The brief asked for visual-only, no interactions. Acceptable for the deliverable type." },
+    "brand":        { "score": 5, "notes": "Faithfully implements Phantom Works: dark-first #0A0A0A, red-only accent #D40000, paper cutout red shadows, sharp 2-4px radius, no gradients, no emoji icons. All tokens from DESIGN.md." }
+  }
+}
